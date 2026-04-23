@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rational Function Dissector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            background: #fafafa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border: 2px solid #4c1d95;
+        }
+        
+        h1 {
+            color: #4c1d95;
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #c026d3;
+            background: white;
+            font-family: Georgia, serif;
+            font-size: 16px;
+            color: #4c1d95;
+            margin-bottom: 25px;
+            cursor: pointer;
+        }
+        
+        .analysis-section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            background: #4c1d95;
+            color: white;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .step-box {
+            background: #faf5ff;
+            border: 2px solid #c026d3;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .step-label {
+            color: #c026d3;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .step-content {
+            color: #1f2937;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+        
+        .hole-box {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .hole-title {
+            color: #b45309;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .hole-content {
+            color: #78350f;
+            line-height: 1.7;
+        }
+        
+        .va-box {
+            background: #fee2e2;
+            border: 2px solid #dc2626;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .va-title {
+            color: #991b1b;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .va-content {
+            color: #7f1d1d;
+            line-height: 1.7;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            border: 2px solid #d1d5db;
+            background: white;
+            margin-bottom: 20px;
+        }
+        
+        .summary {
+            background: #f0fdf4;
+            border: 2px solid #10b981;
+            padding: 20px;
+            color: #065f46;
+            line-height: 1.8;
+        }
+        
+        .summary-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .info {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            color: #1e40af;
+            line-height: 1.7;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Rational Function Dissector</h1>
+        <p class="subtitle">Factor completely to identify holes and vertical asymptotes</p>
+        
+        <select id="function-select">
+            <option value="0">r(x) = (x² - 4)/(x² - x - 6)</option>
+            <option value="1">r(x) = (x² - 9)/(x - 3)</option>
+            <option value="2">r(x) = (x² + 5x + 6)/(x² - 4)</option>
+            <option value="3">r(x) = x/(x² - 16)</option>
+            <option value="4">r(x) = (x² - 1)/(x² + 2x + 1)</option>
+            <option value="5">r(x) = (2x² - 8)/(x² - 3x + 2)</option>
+        </select>
+        
+        <div class="analysis-section">
+            <div class="section-title">Step 1: Factor Completely</div>
+            <div class="step-box">
+                <div class="step-label">Original Function:</div>
+                <div class="step-content" id="original">r(x) = (x² - 4)/(x² - x - 6)</div>
+            </div>
+            <div class="step-box">
+                <div class="step-label">Factored Form:</div>
+                <div class="step-content" id="factored">r(x) = (x - 2)(x + 2)/[(x - 3)(x + 2)]</div>
+            </div>
+        </div>
+        
+        <div class="analysis-section">
+            <div class="section-title">Step 2: Identify Common Factors</div>
+            <div class="step-box">
+                <div class="step-label">Common Factors (Cancel):</div>
+                <div class="step-content" id="common">Common factor: (x + 2)</div>
+            </div>
+            <div class="step-box">
+                <div class="step-label">Simplified Form:</div>
+                <div class="step-content" id="simplified">r(x) = (x - 2)/(x - 3), x ≠ -2</div>
+            </div>
+        </div>
+        
+        <div class="analysis-section">
+            <div class="section-title">Step 3: Classify Discontinuities</div>
+            <div id="holes-container"></div>
+            <div id="vas-container"></div>
+        </div>
+        
+        <canvas id="graph" width="800" height="500"></canvas>
+        
+        <div class="summary">
+            <div class="summary-title">Summary</div>
+            <div id="summary-text"></div>
+        </div>
+        
+        <div class="info">
+            <strong>Key Rule:</strong> Common factors (appear in BOTH numerator and denominator) create HOLES. Factors only in denominator (after canceling) create VERTICAL ASYMPTOTES.
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('graph');
+        const ctx = canvas.getContext('2d');
+        
+        const functionSelect = document.getElementById('function-select');
+        
+        const originalDiv = document.getElementById('original');
+        const factoredDiv = document.getElementById('factored');
+        const commonDiv = document.getElementById('common');
+        const simplifiedDiv = document.getElementById('simplified');
+        const holesContainer = document.getElementById('holes-container');
+        const vasContainer = document.getElementById('vas-container');
+        const summaryText = document.getElementById('summary-text');
+        
+        const functions = [
+            {
+                original: "r(x) = (x² - 4)/(x² - x - 6)",
+                factored: "r(x) = (x - 2)(x + 2)/[(x - 3)(x + 2)]",
+                common: "(x + 2)",
+                simplified: "r(x) = (x - 2)/(x - 3), x ≠ -2",
+                holes: [{x: -2, factor: "(x + 2)"}],
+                vas: [{x: 3, factor: "(x - 3)"}]
+            },
+            {
+                original: "r(x) = (x² - 9)/(x - 3)",
+                factored: "r(x) = (x - 3)(x + 3)/(x - 3)",
+                common: "(x - 3)",
+                simplified: "r(x) = x + 3, x ≠ 3",
+                holes: [{x: 3, factor: "(x - 3)"}],
+                vas: []
+            },
+            {
+                original: "r(x) = (x² + 5x + 6)/(x² - 4)",
+                factored: "r(x) = (x + 2)(x + 3)/[(x - 2)(x + 2)]",
+                common: "(x + 2)",
+                simplified: "r(x) = (x + 3)/(x - 2), x ≠ -2",
+                holes: [{x: -2, factor: "(x + 2)"}],
+                vas: [{x: 2, factor: "(x - 2)"}]
+            },
+            {
+                original: "r(x) = x/(x² - 16)",
+                factored: "r(x) = x/[(x - 4)(x + 4)]",
+                common: "None",
+                simplified: "r(x) = x/[(x - 4)(x + 4)]",
+                holes: [],
+                vas: [{x: 4, factor: "(x - 4)"}, {x: -4, factor: "(x + 4)"}]
+            },
+            {
+                original: "r(x) = (x² - 1)/(x² + 2x + 1)",
+                factored: "r(x) = (x - 1)(x + 1)/(x + 1)²",
+                common: "(x + 1)",
+                simplified: "r(x) = (x - 1)/(x + 1), x ≠ -1",
+                holes: [{x: -1, factor: "(x + 1)"}],
+                vas: [{x: -1, factor: "(x + 1)"}]
+            },
+            {
+                original: "r(x) = (2x² - 8)/(x² - 3x + 2)",
+                factored: "r(x) = 2(x - 2)(x + 2)/[(x - 1)(x - 2)]",
+                common: "(x - 2)",
+                simplified: "r(x) = 2(x + 2)/(x - 1), x ≠ 2",
+                holes: [{x: 2, factor: "(x - 2)"}],
+                vas: [{x: 1, factor: "(x - 1)"}]
+            }
+        ];
+        
+        let currentFunc = functions[0];
+        
+        function evaluateSimplified(x, funcIndex) {
+            // Simplified evaluations for each function
+            const evals = [
+                (x) => (x - 2) / (x - 3),
+                (x) => x + 3,
+                (x) => (x + 3) / (x - 2),
+                (x) => x / ((x - 4) * (x + 4)),
+                (x) => (x - 1) / (x + 1),
+                (x) => 2 * (x + 2) / (x - 1)
+            ];
+            return evals[funcIndex](x);
+        }
+        
+        function findHoleY(holeX, funcIndex) {
+            const epsilon = 0.0001;
+            return evaluateSimplified(holeX + epsilon, funcIndex);
+        }
+        
+        function updateDisplay() {
+            const index = parseInt(functionSelect.value);
+            currentFunc = functions[index];
+            
+            originalDiv.textContent = currentFunc.original;
+            factoredDiv.textContent = currentFunc.factored;
+            commonDiv.innerHTML = currentFunc.common === "None" ? 
+                "<strong>No common factors</strong>" : 
+                `Common factor: <strong>${currentFunc.common}</strong>`;
+            simplifiedDiv.textContent = currentFunc.simplified;
+            
+            // Holes
+            holesContainer.innerHTML = '';
+            if (currentFunc.holes.length > 0) {
+                currentFunc.holes.forEach(hole => {
+                    const holeY = findHoleY(hole.x, index);
+                    const holeBox = document.createElement('div');
+                    holeBox.className = 'hole-box';
+                    holeBox.innerHTML = `
+                        <div class="hole-title">HOLE (Removable Discontinuity)</div>
+                        <div class="hole-content">
+                            Factor ${hole.factor} appears in BOTH numerator and denominator → cancels<br>
+                            Hole location: x = ${hole.x}<br>
+                            Hole coordinates: (${hole.x}, ${holeY.toFixed(2)})
+                        </div>
+                    `;
+                    holesContainer.appendChild(holeBox);
+                });
+            }
+            
+            // Vertical Asymptotes
+            vasContainer.innerHTML = '';
+            if (currentFunc.vas.length > 0) {
+                currentFunc.vas.forEach(va => {
+                    // Check if this is also a hole
+                    const isAlsoHole = currentFunc.holes.some(h => h.x === va.x);
+                    const vaBox = document.createElement('div');
+                    vaBox.className = 'va-box';
+                    vaBox.innerHTML = `
+                        <div class="va-title">VERTICAL ASYMPTOTE${isAlsoHole ? ' (multiplicity > 1)' : ''}</div>
+                        <div class="va-content">
+                            Factor ${va.factor} remains in denominator (after canceling) → vertical asymptote<br>
+                            Vertical asymptote: x = ${va.x}${isAlsoHole ? '<br>Note: This factor had multiplicity > 1, so it creates both a hole AND a VA' : ''}
+                        </div>
+                    `;
+                    vasContainer.appendChild(vaBox);
+                });
+            }
+            
+            if (currentFunc.holes.length === 0 && currentFunc.vas.length === 0) {
+                holesContainer.innerHTML = '<div class="step-box"><div class="step-content">No discontinuities - this is a polynomial!</div></div>';
+            }
+            
+            // Summary
+            let summary = '<strong>Domain:</strong> All real numbers except ';
+            const excluded = [...new Set([...currentFunc.holes.map(h => h.x), ...currentFunc.vas.map(v => v.x)])];
+            summary += excluded.map(x => `x = ${x}`).join(', ');
+            summary += '<br><br>';
+            
+            if (currentFunc.holes.length > 0) {
+                summary += `<strong>Holes at:</strong> ${currentFunc.holes.map(h => {
+                    const y = findHoleY(h.x, index);
+                    return `(${h.x}, ${y.toFixed(2)})`;
+                }).join(', ')}<br>`;
+            }
+            
+            if (currentFunc.vas.length > 0) {
+                summary += `<strong>Vertical Asymptotes at:</strong> ${currentFunc.vas.map(v => `x = ${v.x}`).join(', ')}`;
+            }
+            
+            summaryText.innerHTML = summary;
+            
+            drawGraph(index);
+        }
+        
+        function drawGraph(funcIndex) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const padding = 40;
+            const graphWidth = canvas.width - 2 * padding;
+            const graphHeight = canvas.height - 2 * padding;
+            
+            const allXs = [...currentFunc.holes.map(h => h.x), ...currentFunc.vas.map(v => v.x)];
+            const xMin = Math.min(...allXs, 0) - 3;
+            const xMax = Math.max(...allXs, 0) + 3;
+            const xRange = xMax - xMin;
+            
+            // Sample for y range (avoiding asymptotes)
+            let yValues = [];
+            for (let x = xMin; x <= xMax; x += 0.1) {
+                const isNearAsymptote = currentFunc.vas.some(va => Math.abs(x - va.x) < 0.2);
+                if (!isNearAsymptote) {
+                    yValues.push(evaluateSimplified(x, funcIndex));
+                }
+            }
+            
+            let yMin = Math.min(...yValues);
+            let yMax = Math.max(...yValues);
+            yMin = Math.max(yMin, -20);
+            yMax = Math.min(yMax, 20);
+            
+            const yRange = yMax - yMin;
+            
+            const toCanvasX = (x) => padding + ((x - xMin) / xRange) * graphWidth;
+            const toCanvasY = (y) => padding + ((yMax - y) / yRange) * graphHeight;
+            
+            // Draw axes
+            ctx.strokeStyle = '#d1d5db';
+            ctx.lineWidth = 2;
+            
+            const xAxisY = toCanvasY(0);
+            if (xAxisY >= padding && xAxisY <= canvas.height - padding) {
+                ctx.beginPath();
+                ctx.moveTo(padding, xAxisY);
+                ctx.lineTo(canvas.width - padding, xAxisY);
+                ctx.stroke();
+            }
+            
+            const yAxisX = toCanvasX(0);
+            if (yAxisX >= padding && yAxisX <= canvas.width - padding) {
+                ctx.beginPath();
+                ctx.moveTo(yAxisX, padding);
+                ctx.lineTo(yAxisX, canvas.height - padding);
+                ctx.stroke();
+            }
+            
+            // Draw vertical asymptotes
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([8, 4]);
+            currentFunc.vas.forEach(va => {
+                const x = toCanvasX(va.x);
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, canvas.height - padding);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+            
+            // Draw function
+            ctx.strokeStyle = '#4c1d95';
+            ctx.lineWidth = 3;
+            
+            // Draw in segments, breaking at asymptotes
+            const segments = [];
+            let currentSegment = [];
+            
+            for (let px = 0; px <= graphWidth; px++) {
+                const x = xMin + (px / graphWidth) * xRange;
+                const isNearAsymptote = currentFunc.vas.some(va => Math.abs(x - va.x) < 0.05);
+                
+                if (isNearAsymptote) {
+                    if (currentSegment.length > 0) {
+                        segments.push(currentSegment);
+                        currentSegment = [];
+                    }
+                } else {
+                    const y = evaluateSimplified(x, funcIndex);
+                    if (y >= yMin && y <= yMax) {
+                        currentSegment.push({x, y});
+                    }
+                }
+            }
+            if (currentSegment.length > 0) segments.push(currentSegment);
+            
+            segments.forEach(segment => {
+                ctx.beginPath();
+                segment.forEach((point, i) => {
+                    const cx = toCanvasX(point.x);
+                    const cy = toCanvasY(point.y);
+                    if (i === 0) ctx.moveTo(cx, cy);
+                    else ctx.lineTo(cx, cy);
+                });
+                ctx.stroke();
+            });
+            
+            // Draw holes
+            currentFunc.holes.forEach(hole => {
+                const holeY = findHoleY(hole.x, funcIndex);
+                const cx = toCanvasX(hole.x);
+                const cy = toCanvasY(holeY);
+                
+                // White circle with orange border
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#f59e0b';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            });
+        }
+        
+        functionSelect.addEventListener('change', updateDisplay);
+        updateDisplay();
+    </script>
+</body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Rational Grapher</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            background: #fafafa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border: 2px solid #4c1d95;
+        }
+        
+        h1 {
+            color: #4c1d95;
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #c026d3;
+            background: white;
+            font-family: Georgia, serif;
+            font-size: 16px;
+            color: #4c1d95;
+            margin-bottom: 25px;
+            cursor: pointer;
+        }
+        
+        .step-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            background: #4c1d95;
+            color: white;
+            border: none;
+            font-family: Georgia, serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        button:hover {
+            background: #6b21a8;
+        }
+        
+        button:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+        
+        .current-step {
+            background: #faf5ff;
+            border: 2px solid #c026d3;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .step-title {
+            color: #4c1d95;
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+        
+        .step-content {
+            color: #1f2937;
+            line-height: 1.8;
+        }
+        
+        .step-content strong {
+            color: #4c1d95;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            border: 2px solid #d1d5db;
+            background: white;
+            margin-bottom: 20px;
+        }
+        
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .analysis-box {
+            background: #f0fdf4;
+            border: 2px solid #10b981;
+            padding: 15px;
+            color: #065f46;
+        }
+        
+        .analysis-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .info {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            color: #1e40af;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Complete Rational Grapher</h1>
+        <p class="subtitle">Follow the step-by-step process to analyze and sketch rational functions</p>
+        
+        <select id="function-select">
+            <option value="0">r(x) = (x² - 4)/(x² - x - 6)</option>
+            <option value="1">r(x) = (x + 2)/(x² - 4)</option>
+            <option value="2">r(x) = (2x² - 8)/(x - 1)</option>
+            <option value="3">r(x) = (x² - 1)/(x² + 1)</option>
+        </select>
+        
+        <div class="step-controls">
+            <button id="prev-step">← Previous Step</button>
+            <button id="next-step">Next Step →</button>
+            <button id="reset">Reset to Step 1</button>
+        </div>
+        
+        <div class="current-step" id="step-display">
+            <div class="step-title">Step 1: Factor and Simplify</div>
+            <div class="step-content">Factor both numerator and denominator completely.</div>
+        </div>
+        
+        <canvas id="graph" width="800" height="500"></canvas>
+        
+        <div class="analysis-grid" id="analysis"></div>
+        
+        <div class="info" id="info-box">
+            Click "Next Step" to begin the analysis!
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('graph');
+        const ctx = canvas.getContext('2d');
+        
+        const functionSelect = document.getElementById('function-select');
+        const prevBtn = document.getElementById('prev-step');
+        const nextBtn = document.getElementById('next-step');
+        const resetBtn = document.getElementById('reset');
+        
+        const stepDisplay = document.getElementById('step-display');
+        const analysisDiv = document.getElementById('analysis');
+        const infoBox = document.getElementById('info-box');
+        
+        let currentStep = 1;
+        const totalSteps = 6;
+        
+        const functions = [
+            {
+                original: "r(x) = (x² - 4)/(x² - x - 6)",
+                factored: "(x-2)(x+2)/[(x-3)(x+2)]",
+                simplified: "(x-2)/(x-3), x≠-2",
+                holes: [{x: -2, y: -4/(-5)}],
+                vas: [3],
+                ha: {type: 'horizontal', value: 1},
+                xInt: [2],
+                yInt: 2/3,
+                evaluate: (x) => (x - 2) / (x - 3)
+            },
+            {
+                original: "r(x) = (x + 2)/(x² - 4)",
+                factored: "(x+2)/[(x-2)(x+2)]",
+                simplified: "1/(x-2), x≠-2",
+                holes: [{x: -2, y: 1/(-4)}],
+                vas: [2],
+                ha: {type: 'horizontal', value: 0},
+                xInt: [],
+                yInt: -1/2,
+                evaluate: (x) => 1 / (x - 2)
+            },
+            {
+                original: "r(x) = (2x² - 8)/(x - 1)",
+                factored: "2(x-2)(x+2)/(x-1)",
+                simplified: "2(x-2)(x+2)/(x-1)",
+                holes: [],
+                vas: [1],
+                ha: {type: 'oblique', slope: 2, intercept: 2},
+                xInt: [2, -2],
+                yInt: 8,
+                evaluate: (x) => (2*x*x - 8) / (x - 1)
+            },
+            {
+                original: "r(x) = (x² - 1)/(x² + 1)",
+                factored: "(x-1)(x+1)/(x²+1)",
+                simplified: "(x-1)(x+1)/(x²+1)",
+                holes: [],
+                vas: [],
+                ha: {type: 'horizontal', value: 1},
+                xInt: [1, -1],
+                yInt: -1,
+                evaluate: (x) => (x*x - 1) / (x*x + 1)
+            }
+        ];
+        
+        let currentFunc = functions[0];
+        
+        function updateStepDisplay() {
+            const steps = [
+                {
+                    title: 'Step 1: Factor and Simplify',
+                    content: `<strong>Original:</strong> ${currentFunc.original}<br>` +
+                             `<strong>Factored:</strong> ${currentFunc.factored}<br>` +
+                             `<strong>Simplified:</strong> ${currentFunc.simplified}`,
+                    info: 'Factor completely and cancel any common factors. Remember the restrictions!'
+                },
+                {
+                    title: 'Step 2: Find Holes',
+                    content: currentFunc.holes.length > 0 ?
+                        `<strong>Holes at:</strong> ${currentFunc.holes.map(h => `(${h.x}, ${h.y.toFixed(2)})`).join(', ')}<br>` +
+                        `These come from factors that cancel.` :
+                        '<strong>No holes</strong> - no common factors canceled.',
+                    info: 'Holes occur where factors cancel. Plug the x-value into the simplified form to find the y-coordinate.'
+                },
+                {
+                    title: 'Step 3: Find Vertical Asymptotes',
+                    content: currentFunc.vas.length > 0 ?
+                        `<strong>Vertical asymptotes at:</strong> x = ${currentFunc.vas.join(', ')}<br>` +
+                        `These come from zeros of the denominator (after canceling).` :
+                        '<strong>No vertical asymptotes</strong> - denominator has no real zeros.',
+                    info: 'VAs occur where the denominator equals zero after simplification.'
+                },
+                {
+                    title: 'Step 4: Find Horizontal/Oblique Asymptote',
+                    content: currentFunc.ha.type === 'horizontal' ?
+                        `<strong>Horizontal asymptote:</strong> y = ${currentFunc.ha.value}` :
+                        `<strong>Oblique asymptote:</strong> y = ${currentFunc.ha.slope}x + ${currentFunc.ha.intercept}`,
+                    info: currentFunc.ha.type === 'horizontal' ?
+                        'Compare degrees. Same degree → ratio of leading coefficients.' :
+                        'Numerator degree is exactly 1 more than denominator → use long division.'
+                },
+                {
+                    title: 'Step 5: Find Intercepts',
+                    content: `<strong>x-intercepts:</strong> ${currentFunc.xInt.length > 0 ? currentFunc.xInt.join(', ') : 'None'}<br>` +
+                             `<strong>y-intercept:</strong> ${currentFunc.yInt}`,
+                    info: 'x-intercepts: zeros of numerator. y-intercept: plug in x = 0.'
+                },
+                {
+                    title: 'Step 6: Sketch the Complete Graph',
+                    content: 'Plot all features and connect smoothly, approaching asymptotes.',
+                    info: 'The graph approaches but never touches VAs. It gets arbitrarily close to HAs/OAs for large |x|.'
+                }
+            ];
+            
+            const step = steps[currentStep - 1];
+            stepDisplay.innerHTML = `<div class="step-title">${step.title}</div><div class="step-content">${step.content}</div>`;
+            infoBox.textContent = step.info;
+            
+            // Update analysis boxes
+            analysisDiv.innerHTML = '';
+            if (currentStep >= 1) {
+                analysisDiv.innerHTML = `
+                    <div class="analysis-box">
+                        <div class="analysis-title">Simplified Form</div>
+                        ${currentFunc.simplified}
+                    </div>
+                `;
+            }
+            if (currentStep >= 2 && currentFunc.holes.length > 0) {
+                analysisDiv.innerHTML += `
+                    <div class="analysis-box">
+                        <div class="analysis-title">Holes</div>
+                        ${currentFunc.holes.map(h => `(${h.x}, ${h.y.toFixed(2)})`).join('<br>')}
+                    </div>
+                `;
+            }
+            if (currentStep >= 3 && currentFunc.vas.length > 0) {
+                analysisDiv.innerHTML += `
+                    <div class="analysis-box">
+                        <div class="analysis-title">Vertical Asymptotes</div>
+                        ${currentFunc.vas.map(v => `x = ${v}`).join('<br>')}
+                    </div>
+                `;
+            }
+            if (currentStep >= 4) {
+                analysisDiv.innerHTML += `
+                    <div class="analysis-box">
+                        <div class="analysis-title">${currentFunc.ha.type === 'horizontal' ? 'Horizontal' : 'Oblique'} Asymptote</div>
+                        ${currentFunc.ha.type === 'horizontal' ? `y = ${currentFunc.ha.value}` : `y = ${currentFunc.ha.slope}x + ${currentFunc.ha.intercept}`}
+                    </div>
+                `;
+            }
+            if (currentStep >= 5) {
+                analysisDiv.innerHTML += `
+                    <div class="analysis-box">
+                        <div class="analysis-title">Intercepts</div>
+                        x: ${currentFunc.xInt.length > 0 ? currentFunc.xInt.join(', ') : 'None'}<br>
+                        y: ${currentFunc.yInt}
+                    </div>
+                `;
+            }
+            
+            prevBtn.disabled = currentStep === 1;
+            nextBtn.disabled = currentStep === totalSteps;
+        }
+        
+        function drawGraph() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const padding = 40;
+            const graphWidth = canvas.width - 2 * padding;
+            const graphHeight = canvas.height - 2 * padding;
+            
+            const xMin = -8;
+            const xMax = 8;
+            const xRange = xMax - xMin;
+            const yMin = -8;
+            const yMax = 8;
+            const yRange = yMax - yMin;
+            
+            const toCanvasX = (x) => padding + ((x - xMin) / xRange) * graphWidth;
+            const toCanvasY = (y) => padding + ((yMax - y) / yRange) * graphHeight;
+            
+            // Draw axes
+            ctx.strokeStyle = '#d1d5db';
+            ctx.lineWidth = 2;
+            
+            const xAxisY = toCanvasY(0);
+            if (xAxisY >= padding && xAxisY <= canvas.height - padding) {
+                ctx.beginPath();
+                ctx.moveTo(padding, xAxisY);
+                ctx.lineTo(canvas.width - padding, xAxisY);
+                ctx.stroke();
+            }
+            
+            const yAxisX = toCanvasX(0);
+            if (yAxisX >= padding && yAxisX <= canvas.width - padding) {
+                ctx.beginPath();
+                ctx.moveTo(yAxisX, padding);
+                ctx.lineTo(yAxisX, canvas.height - padding);
+                ctx.stroke();
+            }
+            
+            // Step 3: Draw vertical asymptotes
+            if (currentStep >= 3) {
+                ctx.strokeStyle = '#dc2626';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([8, 4]);
+                currentFunc.vas.forEach(va => {
+                    const x = toCanvasX(va);
+                    ctx.beginPath();
+                    ctx.moveTo(x, padding);
+                    ctx.lineTo(x, canvas.height - padding);
+                    ctx.stroke();
+                });
+                ctx.setLineDash([]);
+            }
+            
+            // Step 4: Draw horizontal/oblique asymptote
+            if (currentStep >= 4) {
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([10, 5]);
+                
+                if (currentFunc.ha.type === 'horizontal') {
+                    const y = toCanvasY(currentFunc.ha.value);
+                    if (y >= padding && y <= canvas.height - padding) {
+                        ctx.beginPath();
+                        ctx.moveTo(padding, y);
+                        ctx.lineTo(canvas.width - padding, y);
+                        ctx.stroke();
+                    }
+                } else {
+                    const y1 = currentFunc.ha.slope * xMin + currentFunc.ha.intercept;
+                    const y2 = currentFunc.ha.slope * xMax + currentFunc.ha.intercept;
+                    ctx.beginPath();
+                    ctx.moveTo(toCanvasX(xMin), toCanvasY(y1));
+                    ctx.lineTo(toCanvasX(xMax), toCanvasY(y2));
+                    ctx.stroke();
+                }
+                ctx.setLineDash([]);
+            }
+            
+            // Step 5: Draw intercepts
+            if (currentStep >= 5) {
+                // x-intercepts
+                ctx.fillStyle = '#c026d3';
+                currentFunc.xInt.forEach(x => {
+                    ctx.beginPath();
+                    ctx.arc(toCanvasX(x), toCanvasY(0), 8, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                
+                // y-intercept
+                ctx.fillStyle = '#10b981';
+                ctx.beginPath();
+                ctx.arc(toCanvasX(0), toCanvasY(currentFunc.yInt), 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Step 6: Draw full curve
+            if (currentStep >= 6) {
+                ctx.strokeStyle = '#4c1d95';
+                ctx.lineWidth = 3;
+                
+                const segments = [];
+                let currentSegment = [];
+                
+                for (let px = 0; px <= graphWidth; px++) {
+                    const x = xMin + (px / graphWidth) * xRange;
+                    const isNearAsymptote = currentFunc.vas.some(va => Math.abs(x - va) < 0.08);
+                    
+                    if (isNearAsymptote) {
+                        if (currentSegment.length > 0) {
+                            segments.push(currentSegment);
+                            currentSegment = [];
+                        }
+                    } else {
+                        const y = currentFunc.evaluate(x);
+                        if (y >= yMin && y <= yMax && !isNaN(y) && isFinite(y)) {
+                            currentSegment.push({x, y});
+                        } else if (currentSegment.length > 0) {
+                            segments.push(currentSegment);
+                            currentSegment = [];
+                        }
+                    }
+                }
+                if (currentSegment.length > 0) segments.push(currentSegment);
+                
+                segments.forEach(segment => {
+                    if (segment.length > 1) {
+                        ctx.beginPath();
+                        segment.forEach((point, i) => {
+                            const cx = toCanvasX(point.x);
+                            const cy = toCanvasY(point.y);
+                            if (i === 0) ctx.moveTo(cx, cy);
+                            else ctx.lineTo(cx, cy);
+                        });
+                        ctx.stroke();
+                    }
+                });
+            }
+            
+            // Step 2: Draw holes
+            if (currentStep >= 2) {
+                currentFunc.holes.forEach(hole => {
+                    const cx = toCanvasX(hole.x);
+                    const cy = toCanvasY(hole.y);
+                    
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = '#f59e0b';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                });
+            }
+        }
+        
+        prevBtn.addEventListener('click', () => {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+                drawGraph();
+            }
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateStepDisplay();
+                drawGraph();
+            }
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            currentStep = 1;
+            updateStepDisplay();
+            drawGraph();
+        });
+        
+        functionSelect.addEventListener('change', () => {
+            currentFunc = functions[parseInt(functionSelect.value)];
+            currentStep = 1;
+            updateStepDisplay();
+            drawGraph();
+        });
+        
+        updateStepDisplay();
+        drawGraph();
+    </script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asymptote Analyzer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            background: #fafafa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border: 2px solid #4c1d95;
+        }
+        
+        h1 {
+            color: #4c1d95;
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #c026d3;
+            background: white;
+            font-family: Georgia, serif;
+            font-size: 16px;
+            color: #4c1d95;
+            margin-bottom: 25px;
+            cursor: pointer;
+        }
+        
+        .function-display {
+            background: #faf5ff;
+            border: 2px solid #c026d3;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            color: #4c1d95;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+        
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .info-box {
+            background: #dbeafe;
+            border: 2px solid #3b82f6;
+            padding: 15px;
+        }
+        
+        .info-title {
+            color: #1e40af;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .info-content {
+            color: #1e3a8a;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .decision-box {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .decision-title {
+            color: #b45309;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .decision-content {
+            color: #78350f;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+        
+        .result-box {
+            background: #f0fdf4;
+            border: 2px solid #10b981;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .result-title {
+            color: #065f46;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+        
+        .result-content {
+            color: #047857;
+            line-height: 1.8;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            border: 2px solid #d1d5db;
+            background: white;
+            margin-bottom: 20px;
+        }
+        
+        .info {
+            background: #faf5ff;
+            border-left: 4px solid #c026d3;
+            padding: 15px;
+            color: #1f2937;
+            line-height: 1.7;
+        }
+        
+        .info-note {
+            color: #4c1d95;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .case-label {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        
+        .case1 { background: #dbeafe; color: #1e40af; }
+        .case2 { background: #dcfce7; color: #15803d; }
+        .case3 { background: #fef3c7; color: #b45309; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Asymptote Analyzer</h1>
+        <p class="subtitle">Compare numerator and denominator degrees to find horizontal and oblique asymptotes</p>
+        
+        <select id="function-select">
+            <option value="0">r(x) = (3x² + 1)/(x² - 4)</option>
+            <option value="1">r(x) = (2x + 5)/(x² - 1)</option>
+            <option value="2">r(x) = (x³ - 8)/(x² + 2x)</option>
+            <option value="3">r(x) = (4x² - 1)/(2x² + 3)</option>
+            <option value="4">r(x) = (x + 3)/(3x - 6)</option>
+            <option value="5">r(x) = (x² + 2x - 1)/(x + 4)</option>
+        </select>
+        
+        <div class="function-display" id="function-display">r(x) = (3x² + 1)/(x² - 4)</div>
+        
+        <div class="analysis-grid">
+            <div class="info-box">
+                <div class="info-title">Numerator Degree</div>
+                <div class="info-content" id="num-degree">2</div>
+            </div>
+            <div class="info-box">
+                <div class="info-title">Denominator Degree</div>
+                <div class="info-content" id="den-degree">2</div>
+            </div>
+            <div class="info-box">
+                <div class="info-title">Degree Comparison</div>
+                <div class="info-content" id="comparison">n = m</div>
+            </div>
+            <div class="info-box">
+                <div class="info-title">Case</div>
+                <div class="info-content" id="case-type">Case 1</div>
+            </div>
+        </div>
+        
+        <div class="decision-box">
+            <div class="decision-title">The Three-Case Rule</div>
+            <div class="decision-content" id="rule-text">
+                <strong>Case 1:</strong> If degree of numerator = degree of denominator (n = m)<br>
+                → Horizontal asymptote at y = (leading coefficient of numerator)/(leading coefficient of denominator)
+            </div>
+        </div>
+        
+        <div class="result-box">
+            <div class="result-title">Horizontal/Oblique Asymptote</div>
+            <div class="result-content" id="asymptote-result">y = 3/1 = 3</div>
+        </div>
+        
+        <canvas id="graph" width="800" height="500"></canvas>
+        
+        <div class="info">
+            <div class="info-note">The Three Cases:</div>
+            <span class="case-label case1">Case 1: n = m</span> Horizontal asymptote at y = (ratio of leading coefficients)<br><br>
+            <span class="case-label case2">Case 2: n < m</span> Horizontal asymptote at y = 0 (x-axis)<br><br>
+            <span class="case-label case3">Case 3: n = m + 1</span> Oblique (slant) asymptote — use polynomial long division<br><br>
+            <strong>Note:</strong> If n > m + 1, there is NO horizontal or oblique asymptote (the function grows without bound).
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('graph');
+        const ctx = canvas.getContext('2d');
+        
+        const functionSelect = document.getElementById('function-select');
+        const functionDisplay = document.getElementById('function-display');
+        const numDegreeDiv = document.getElementById('num-degree');
+        const denDegreeDiv = document.getElementById('den-degree');
+        const comparisonDiv = document.getElementById('comparison');
+        const caseTypeDiv = document.getElementById('case-type');
+        const ruleTextDiv = document.getElementById('rule-text');
+        const asymptoteResult = document.getElementById('asymptote-result');
+        
+        const functions = [
+            {
+                display: "r(x) = (3x² + 1)/(x² - 4)",
+                numDeg: 2,
+                denDeg: 2,
+                numLeading: 3,
+                denLeading: 1,
+                evaluate: (x) => (3*x*x + 1)/(x*x - 4),
+                asymptote: {type: 'horizontal', value: 3},
+                vas: [-2, 2]
+            },
+            {
+                display: "r(x) = (2x + 5)/(x² - 1)",
+                numDeg: 1,
+                denDeg: 2,
+                numLeading: 2,
+                denLeading: 1,
+                evaluate: (x) => (2*x + 5)/(x*x - 1),
+                asymptote: {type: 'horizontal', value: 0},
+                vas: [-1, 1]
+            },
+            {
+                display: "r(x) = (x³ - 8)/(x² + 2x)",
+                numDeg: 3,
+                denDeg: 2,
+                numLeading: 1,
+                denLeading: 1,
+                evaluate: (x) => (x*x*x - 8)/(x*x + 2*x),
+                asymptote: {type: 'oblique', slope: 1, intercept: -2}, // y = x - 2
+                vas: [0, -2]
+            },
+            {
+                display: "r(x) = (4x² - 1)/(2x² + 3)",
+                numDeg: 2,
+                denDeg: 2,
+                numLeading: 4,
+                denLeading: 2,
+                evaluate: (x) => (4*x*x - 1)/(2*x*x + 3),
+                asymptote: {type: 'horizontal', value: 2},
+                vas: []
+            },
+            {
+                display: "r(x) = (x + 3)/(3x - 6)",
+                numDeg: 1,
+                denDeg: 1,
+                numLeading: 1,
+                denLeading: 3,
+                evaluate: (x) => (x + 3)/(3*x - 6),
+                asymptote: {type: 'horizontal', value: 1/3},
+                vas: [2]
+            },
+            {
+                display: "r(x) = (x² + 2x - 1)/(x + 4)",
+                numDeg: 2,
+                denDeg: 1,
+                numLeading: 1,
+                denLeading: 1,
+                evaluate: (x) => (x*x + 2*x - 1)/(x + 4),
+                asymptote: {type: 'oblique', slope: 1, intercept: -2}, // y = x - 2
+                vas: [-4]
+            }
+        ];
+        
+        let currentFunc = functions[0];
+        
+        function updateDisplay() {
+            const index = parseInt(functionSelect.value);
+            currentFunc = functions[index];
+            
+            functionDisplay.textContent = currentFunc.display;
+            numDegreeDiv.textContent = currentFunc.numDeg;
+            denDegreeDiv.textContent = currentFunc.denDeg;
+            
+            let caseNum, caseLabel, ruleText, asymptoteText;
+            
+            if (currentFunc.numDeg === currentFunc.denDeg) {
+                // Case 1: n = m
+                caseNum = 1;
+                caseLabel = "Case 1";
+                comparisonDiv.textContent = "n = m";
+                ruleText = `<strong>Case 1:</strong> Degree of numerator = Degree of denominator (${currentFunc.numDeg} = ${currentFunc.denDeg})<br>→ Horizontal asymptote at y = (leading coefficient of numerator)/(leading coefficient of denominator)`;
+                const ratio = currentFunc.numLeading / currentFunc.denLeading;
+                asymptoteText = `y = ${currentFunc.numLeading}/${currentFunc.denLeading}${ratio !== currentFunc.numLeading / currentFunc.denLeading ? '' : ` = ${ratio.toFixed(3)}`}`;
+                if (ratio === Math.round(ratio)) asymptoteText = `y = ${ratio}`;
+            } else if (currentFunc.numDeg < currentFunc.denDeg) {
+                // Case 2: n < m
+                caseNum = 2;
+                caseLabel = "Case 2";
+                comparisonDiv.textContent = "n < m";
+                ruleText = `<strong>Case 2:</strong> Degree of numerator < Degree of denominator (${currentFunc.numDeg} < ${currentFunc.denDeg})<br>→ Horizontal asymptote at y = 0 (the x-axis)<br>→ This makes sense: denominator grows faster, so the fraction approaches 0`;
+                asymptoteText = "y = 0";
+            } else if (currentFunc.numDeg === currentFunc.denDeg + 1) {
+                // Case 3: n = m + 1
+                caseNum = 3;
+                caseLabel = "Case 3";
+                comparisonDiv.textContent = "n = m + 1";
+                ruleText = `<strong>Case 3:</strong> Degree of numerator = Degree of denominator + 1 (${currentFunc.numDeg} = ${currentFunc.denDeg} + 1)<br>→ Oblique (slant) asymptote<br>→ Use polynomial long division to find it`;
+                if (currentFunc.asymptote.slope !== undefined) {
+                    asymptoteText = `y = ${currentFunc.asymptote.slope}x ${currentFunc.asymptote.intercept >= 0 ? '+' : ''} ${currentFunc.asymptote.intercept}`;
+                }
+            }
+            
+            caseTypeDiv.textContent = caseLabel;
+            ruleTextDiv.innerHTML = ruleText;
+            asymptoteResult.textContent = asymptoteText;
+            
+            drawGraph(index);
+        }
+        
+        function drawGraph(funcIndex) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const padding = 40;
+            const graphWidth = canvas.width - 2 * padding;
+            const graphHeight = canvas.height - 2 * padding;
+            
+            const xMin = -8;
+            const xMax = 8;
+            const xRange = xMax - xMin;
+            
+            const yMin = -8;
+            const yMax = 8;
+            const yRange = yMax - yMin;
+            
+            const toCanvasX = (x) => padding + ((x - xMin) / xRange) * graphWidth;
+            const toCanvasY = (y) => padding + ((yMax - y) / yRange) * graphHeight;
+            
+            // Draw axes
+            ctx.strokeStyle = '#d1d5db';
+            ctx.lineWidth = 2;
+            
+            const xAxisY = toCanvasY(0);
+            if (xAxisY >= padding && xAxisY <= canvas.height - padding) {
+                ctx.beginPath();
+                ctx.moveTo(padding, xAxisY);
+                ctx.lineTo(canvas.width - padding, xAxisY);
+                ctx.stroke();
+            }
+            
+            const yAxisX = toCanvasX(0);
+            if (yAxisX >= padding && yAxisX <= canvas.width - padding) {
+                ctx.beginPath();
+                ctx.moveTo(yAxisX, padding);
+                ctx.lineTo(yAxisX, canvas.height - padding);
+                ctx.stroke();
+            }
+            
+            // Draw grid
+            ctx.strokeStyle = '#f3f4f6';
+            ctx.lineWidth = 1;
+            for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x++) {
+                if (x !== 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(toCanvasX(x), padding);
+                    ctx.lineTo(toCanvasX(x), canvas.height - padding);
+                    ctx.stroke();
+                }
+            }
+            for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y++) {
+                if (y !== 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(padding, toCanvasY(y));
+                    ctx.lineTo(canvas.width - padding, toCanvasY(y));
+                    ctx.stroke();
+                }
+            }
+            
+            // Draw horizontal/oblique asymptote
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 5]);
+            
+            if (currentFunc.asymptote.type === 'horizontal') {
+                const y = toCanvasY(currentFunc.asymptote.value);
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.stroke();
+            } else if (currentFunc.asymptote.type === 'oblique') {
+                const y1 = currentFunc.asymptote.slope * xMin + currentFunc.asymptote.intercept;
+                const y2 = currentFunc.asymptote.slope * xMax + currentFunc.asymptote.intercept;
+                ctx.beginPath();
+                ctx.moveTo(toCanvasX(xMin), toCanvasY(y1));
+                ctx.lineTo(toCanvasX(xMax), toCanvasY(y2));
+                ctx.stroke();
+            }
+            ctx.setLineDash([]);
+            
+            // Draw vertical asymptotes
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([8, 4]);
+            currentFunc.vas.forEach(va => {
+                const x = toCanvasX(va);
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, canvas.height - padding);
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+            
+            // Draw function
+            ctx.strokeStyle = '#4c1d95';
+            ctx.lineWidth = 3;
+            
+            const segments = [];
+            let currentSegment = [];
+            
+            for (let px = 0; px <= graphWidth; px++) {
+                const x = xMin + (px / graphWidth) * xRange;
+                const isNearAsymptote = currentFunc.vas.some(va => Math.abs(x - va) < 0.1);
+                
+                if (isNearAsymptote) {
+                    if (currentSegment.length > 0) {
+                        segments.push(currentSegment);
+                        currentSegment = [];
+                    }
+                } else {
+                    const y = currentFunc.evaluate(x);
+                    if (y >= yMin && y <= yMax && !isNaN(y) && isFinite(y)) {
+                        currentSegment.push({x, y});
+                    } else if (currentSegment.length > 0) {
+                        segments.push(currentSegment);
+                        currentSegment = [];
+                    }
+                }
+            }
+            if (currentSegment.length > 0) segments.push(currentSegment);
+            
+            segments.forEach(segment => {
+                if (segment.length > 1) {
+                    ctx.beginPath();
+                    segment.forEach((point, i) => {
+                        const cx = toCanvasX(point.x);
+                        const cy = toCanvasY(point.y);
+                        if (i === 0) ctx.moveTo(cx, cy);
+                        else ctx.lineTo(cx, cy);
+                    });
+                    ctx.stroke();
+                }
+            });
+        }
+        
+        functionSelect.addEventListener('change', updateDisplay);
+        updateDisplay();
+    </script>
+</body>
+</html>
