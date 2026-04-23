@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Composite Functions: Inside Out - Video Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #0d9488;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 6px;
+        }
+
+        .section h2 {
+            color: #0d9488;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #0d9488;
+        }
+
+        .function-box {
+            background: white;
+            border: 3px solid #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .function-box.blue {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .function-box.orange {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .function-label {
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .function-label.blue {
+            color: #1e40af;
+        }
+
+        .function-label.orange {
+            color: #92400e;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: #0d9488;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calculate-btn:hover {
+            background: #0f766e;
+        }
+
+        .flow-diagram {
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .flow-title {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 30px;
+        }
+
+        .flow-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .flow-element {
+            text-align: center;
+        }
+
+        .flow-value {
+            background: #f3f4f6;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            padding: 20px 30px;
+            font-size: 1.5em;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            min-width: 100px;
+        }
+
+        .flow-machine {
+            background: white;
+            border: 3px solid;
+            border-radius: 12px;
+            padding: 25px;
+            min-width: 150px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .flow-machine.blue {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .flow-machine.orange {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .flow-machine.green {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+
+        .machine-label {
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .machine-label.blue {
+            color: #1e40af;
+        }
+
+        .machine-label.orange {
+            color: #92400e;
+        }
+
+        .machine-label.green {
+            color: #065f46;
+        }
+
+        .machine-formula {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #6b7280;
+            font-weight: bold;
+        }
+
+        .step-display {
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .step strong {
+            color: #0d9488;
+        }
+
+        .result-box {
+            background: #10b981;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .comparison {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 6px;
+            margin-top: 30px;
+        }
+
+        .comparison h3 {
+            color: #0d9488;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .comparison-card {
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .comparison-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .comparison-formula {
+            font-family: 'Courier New', monospace;
+            color: #374151;
+            margin: 5px 0;
+        }
+
+        .not-equal {
+            text-align: center;
+            font-size: 2em;
+            color: #ef4444;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            padding: 10px;
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+
+        .preset-btn:hover {
+            border-color: #0d9488;
+            background: #f0fdfa;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Composite Functions: Inside Out</h1>
+        <div class="subtitle">Interactive Demo for Video Production</div>
+
+        <div class="main-grid">
+            <!-- Input Section -->
+            <div class="section">
+                <h2>Define Your Functions</h2>
+
+                <div class="presets">
+                    <button class="preset-btn" onclick="loadPreset1()">Example 1</button>
+                    <button class="preset-btn" onclick="loadPreset2()">Example 2</button>
+                    <button class="preset-btn" onclick="loadPreset3()">Example 3</button>
+                </div>
+
+                <div class="function-box blue">
+                    <div class="function-label blue">Inner Function: g(x)</div>
+                    <div class="input-group">
+                        <label>g(x) = </label>
+                        <input type="text" id="gFunc" value="2*x + 1" placeholder="e.g., 2*x + 1">
+                    </div>
+                </div>
+
+                <div class="function-box orange">
+                    <div class="function-label orange">Outer Function: f(x)</div>
+                    <div class="input-group">
+                        <label>f(x) = </label>
+                        <input type="text" id="fFunc" value="x^2" placeholder="e.g., x^2">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Evaluate at x = </label>
+                    <input type="number" id="xValue" value="3" step="0.1">
+                </div>
+
+                <button class="calculate-btn" onclick="calculate()">Calculate (f ∘ g)(x)</button>
+            </div>
+
+            <!-- Flow Diagram Section -->
+            <div class="section">
+                <h2>Function Machine Flow</h2>
+                <div class="flow-diagram">
+                    <div class="flow-title">(f ∘ g)(x) = f(g(x))</div>
+                    
+                    <div class="flow-container">
+                        <div class="flow-element">
+                            <div class="flow-value" id="inputValue">x</div>
+                            <small>Input</small>
+                        </div>
+
+                        <div class="arrow">→</div>
+
+                        <div class="flow-element">
+                            <div class="flow-machine blue">
+                                <div class="machine-label blue">g(x)</div>
+                                <div class="machine-formula" id="gDisplay">2x + 1</div>
+                            </div>
+                        </div>
+
+                        <div class="arrow">→</div>
+
+                        <div class="flow-element">
+                            <div class="flow-value" id="gResult">g(x)</div>
+                            <small>g(x) result</small>
+                        </div>
+
+                        <div class="arrow">→</div>
+
+                        <div class="flow-element">
+                            <div class="flow-machine orange">
+                                <div class="machine-label orange">f(x)</div>
+                                <div class="machine-formula" id="fDisplay">x²</div>
+                            </div>
+                        </div>
+
+                        <div class="arrow">→</div>
+
+                        <div class="flow-element">
+                            <div class="flow-machine green">
+                                <div class="machine-label green">Result</div>
+                                <div class="machine-formula" id="finalResult">f(g(x))</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-display" id="steps">
+                        <div class="step">Click "Calculate" to see step-by-step evaluation</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Matters Comparison -->
+        <div class="comparison">
+            <h3>Order Matters: (f ∘ g) ≠ (g ∘ f)</h3>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <div class="comparison-title">(f ∘ g)(x) = f(g(x))</div>
+                    <div id="fogFormula" class="comparison-formula">Do g first, then f</div>
+                    <div id="fogWork" style="margin-top: 10px; font-size: 0.9em; color: #6b7280;"></div>
+                </div>
+
+                <div class="comparison-card">
+                    <div class="comparison-title">(g ∘ f)(x) = g(f(x))</div>
+                    <div id="gofFormula" class="comparison-formula">Do f first, then g</div>
+                    <div id="gofWork" style="margin-top: 10px; font-size: 0.9em; color: #6b7280;"></div>
+                </div>
+            </div>
+            <div class="not-equal" id="notEqual">≠</div>
+        </div>
+    </div>
+
+    <script>
+        // Parse and evaluate mathematical expressions
+        function evaluateExpression(expr, x) {
+            try {
+                // Replace ^ with ** for power
+                expr = expr.replace(/\^/g, '**');
+                // Handle sqrt
+                expr = expr.replace(/sqrt\(/g, 'Math.sqrt(');
+                // Replace x with the value
+                expr = expr.replace(/x/g, `(${x})`);
+                // Evaluate safely
+                return Function('"use strict"; return (' + expr + ')')();
+            } catch (e) {
+                return 'Error';
+            }
+        }
+
+        function loadPreset1() {
+            document.getElementById('gFunc').value = '2*x + 1';
+            document.getElementById('fFunc').value = 'x^2';
+            document.getElementById('xValue').value = '3';
+            calculate();
+        }
+
+        function loadPreset2() {
+            document.getElementById('gFunc').value = 'x + 2';
+            document.getElementById('fFunc').value = 'sqrt(x)';
+            document.getElementById('xValue').value = '7';
+            calculate();
+        }
+
+        function loadPreset3() {
+            document.getElementById('gFunc').value = 'x^2';
+            document.getElementById('fFunc').value = '2*x + 1';
+            document.getElementById('xValue').value = '3';
+            calculate();
+        }
+
+        function calculate() {
+            const gFunc = document.getElementById('gFunc').value;
+            const fFunc = document.getElementById('fFunc').value;
+            const xVal = parseFloat(document.getElementById('xValue').value);
+
+            // Update displays
+            document.getElementById('gDisplay').textContent = gFunc.replace(/\*/g, '');
+            document.getElementById('fDisplay').textContent = fFunc.replace(/\*/g, '');
+            document.getElementById('inputValue').textContent = xVal;
+
+            // Calculate g(x)
+            const gResult = evaluateExpression(gFunc, xVal);
+            document.getElementById('gResult').textContent = typeof gResult === 'number' ? gResult.toFixed(2) : gResult;
+
+            // Calculate f(g(x))
+            const finalResult = evaluateExpression(fFunc, gResult);
+            document.getElementById('finalResult').textContent = typeof finalResult === 'number' ? finalResult.toFixed(2) : finalResult;
+
+            // Show steps
+            const stepsHTML = `
+                <div class="step"><strong>Step 1:</strong> Apply g(x) = ${gFunc.replace(/\*/g, '')}</div>
+                <div class="step">g(${xVal}) = ${gFunc.replace(/x/g, xVal).replace(/\*/g, '')} = ${typeof gResult === 'number' ? gResult.toFixed(2) : gResult}</div>
+                <div class="step"><strong>Step 2:</strong> Apply f(x) = ${fFunc.replace(/\*/g, '')} to the result</div>
+                <div class="step">f(${typeof gResult === 'number' ? gResult.toFixed(2) : gResult}) = ${fFunc.replace(/x/g, `(${typeof gResult === 'number' ? gResult.toFixed(2) : gResult})`).replace(/\*/g, '')} = ${typeof finalResult === 'number' ? finalResult.toFixed(2) : finalResult}</div>
+                <div class="result-box">(f ∘ g)(${xVal}) = ${typeof finalResult === 'number' ? finalResult.toFixed(2) : finalResult}</div>
+            `;
+            document.getElementById('steps').innerHTML = stepsHTML;
+
+            // Calculate comparison: (f∘g) vs (g∘f)
+            const fogAtX = finalResult;
+
+            // For (g∘f)(x): g(f(x))
+            const fResult = evaluateExpression(fFunc, xVal);
+            const gofAtX = evaluateExpression(gFunc, fResult);
+
+            document.getElementById('fogFormula').innerHTML = `
+                At x=${xVal}: <strong>${typeof fogAtX === 'number' ? fogAtX.toFixed(2) : fogAtX}</strong>
+            `;
+
+            document.getElementById('gofFormula').innerHTML = `
+                At x=${xVal}: <strong>${typeof gofAtX === 'number' ? gofAtX.toFixed(2) : gofAtX}</strong>
+            `;
+
+            // Show work for both
+            document.getElementById('fogWork').innerHTML = `
+                g(${xVal}) = ${typeof gResult === 'number' ? gResult.toFixed(2) : gResult}<br>
+                f(${typeof gResult === 'number' ? gResult.toFixed(2) : gResult}) = ${typeof fogAtX === 'number' ? fogAtX.toFixed(2) : fogAtX}
+            `;
+
+            document.getElementById('gofWork').innerHTML = `
+                f(${xVal}) = ${typeof fResult === 'number' ? fResult.toFixed(2) : fResult}<br>
+                g(${typeof fResult === 'number' ? fResult.toFixed(2) : fResult}) = ${typeof gofAtX === 'number' ? gofAtX.toFixed(2) : gofAtX}
+            `;
+
+            // Update not-equal symbol
+            if (Math.abs(fogAtX - gofAtX) < 0.001) {
+                document.getElementById('notEqual').textContent = '=';
+                document.getElementById('notEqual').style.color = '#10b981';
+            } else {
+                document.getElementById('notEqual').textContent = '≠';
+                document.getElementById('notEqual').style.color = '#ef4444';
+            }
+        }
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>

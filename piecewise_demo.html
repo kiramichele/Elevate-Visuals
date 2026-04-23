@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piecewise Functions in Action - Video Demo</title>
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #0d9488;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 6px;
+        }
+
+        .section h2 {
+            color: #0d9488;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .presets {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            padding: 12px;
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .preset-btn:hover {
+            border-color: #0d9488;
+            background: #f0fdfa;
+        }
+
+        .graph-container {
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .evaluator {
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            padding: 25px;
+        }
+
+        .evaluator h3 {
+            color: #374151;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1.1em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #0d9488;
+        }
+
+        .evaluate-btn {
+            width: 100%;
+            padding: 15px;
+            background: #0d9488;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .evaluate-btn:hover {
+            background: #0f766e;
+        }
+
+        .condition-check {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .condition-item {
+            background: white;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .condition-item.active {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+
+        .condition-item.inactive {
+            opacity: 0.5;
+        }
+
+        .condition-text {
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+        }
+
+        .condition-status {
+            font-weight: 600;
+            padding: 5px 15px;
+            border-radius: 4px;
+        }
+
+        .status-true {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-false {
+            background: #ef4444;
+            color: white;
+        }
+
+        .calculation {
+            background: #0d9488;
+            color: white;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+
+        .calculation h4 {
+            margin-bottom: 15px;
+        }
+
+        .calc-step {
+            font-family: 'Courier New', monospace;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .result-box {
+            background: #10b981;
+            color: white;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .piece-legend {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+        }
+
+        .legend-color.blue {
+            background: #3b82f6;
+        }
+
+        .legend-color.teal {
+            background: #14b8a6;
+        }
+
+        .legend-color.purple {
+            background: #a855f7;
+        }
+
+        .legend-label {
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Piecewise Functions in Action</h1>
+        <div class="subtitle">Interactive Demo for Video Production</div>
+
+        <div class="main-grid">
+            <!-- Graph Section -->
+            <div class="section">
+                <h2>Piecewise Function Graph</h2>
+
+                <div class="presets">
+                    <button class="preset-btn" onclick="loadBasicExample()">Basic Example</button>
+                    <button class="preset-btn" onclick="loadTaxBracket()">Tax Bracket</button>
+                </div>
+
+                <div class="graph-container">
+                    <div id="graph"></div>
+                </div>
+
+                <div class="piece-legend">
+                    <div class="legend-item">
+                        <div class="legend-color blue"></div>
+                        <div class="legend-label">Piece 1</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color teal"></div>
+                        <div class="legend-label">Piece 2</div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color purple"></div>
+                        <div class="legend-label">Piece 3</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evaluator Section -->
+            <div class="section">
+                <h2>Evaluate the Function</h2>
+
+                <div class="evaluator">
+                    <h3 id="functionTitle">Current Function</h3>
+                    <div id="functionDisplay"></div>
+
+                    <div class="input-group">
+                        <label>Evaluate at x = </label>
+                        <input type="number" id="xInput" value="0" step="0.1">
+                    </div>
+
+                    <button class="evaluate-btn" onclick="evaluate()">Check Conditions & Calculate</button>
+
+                    <div class="condition-check" id="conditionCheck">
+                        <!-- Conditions will be inserted here -->
+                    </div>
+
+                    <div id="calculationSteps"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFunction = 'basic';
+
+        const functions = {
+            basic: {
+                title: 'Basic Piecewise Function',
+                pieces: [
+                    { formula: '2*x + 1', condition: 'x < -1', domain: [-10, -1], color: '#3b82f6' },
+                    { formula: 'x^2', condition: '-1 ≤ x < 2', domain: [-1, 2], color: '#14b8a6' },
+                    { formula: '5', condition: 'x ≥ 2', domain: [2, 10], color: '#a855f7' }
+                ]
+            },
+            tax: {
+                title: 'Tax Bracket Example (Simplified)',
+                pieces: [
+                    { formula: '0.10 * x', condition: '0 ≤ x ≤ 10000', domain: [0, 10000], color: '#3b82f6' },
+                    { formula: '1000 + 0.15 * (x - 10000)', condition: '10000 < x ≤ 40000', domain: [10000, 40000], color: '#14b8a6' },
+                    { formula: '5500 + 0.25 * (x - 40000)', condition: 'x > 40000', domain: [40000, 60000], color: '#a855f7' }
+                ]
+            }
+        };
+
+        function evaluateFormula(formula, x) {
+            try {
+                formula = formula.replace(/\^/g, '**');
+                formula = formula.replace(/x/g, `(${x})`);
+                return Function('"use strict"; return (' + formula + ')')();
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function checkCondition(condition, x) {
+            try {
+                condition = condition.replace(/x/g, x);
+                condition = condition.replace(/≤/g, '<=');
+                condition = condition.replace(/≥/g, '>=');
+                return Function('"use strict"; return (' + condition + ')')();
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function plotFunction() {
+            const func = functions[currentFunction];
+            const traces = [];
+
+            func.pieces.forEach((piece, index) => {
+                const [min, max] = piece.domain;
+                const x = [];
+                const y = [];
+
+                for (let i = 0; i <= 100; i++) {
+                    const xi = min + (max - min) * i / 100;
+                    const yi = evaluateFormula(piece.formula, xi);
+                    if (yi !== null && isFinite(yi)) {
+                        x.push(xi);
+                        y.push(yi);
+                    }
+                }
+
+                traces.push({
+                    x: x,
+                    y: y,
+                    type: 'scatter',
+                    mode: 'lines',
+                    line: { color: piece.color, width: 3 },
+                    name: `Piece ${index + 1}`
+                });
+            });
+
+            const layout = {
+                xaxis: {
+                    title: currentFunction === 'tax' ? 'Income ($)' : 'x',
+                    zeroline: true,
+                    gridcolor: '#e5e7eb'
+                },
+                yaxis: {
+                    title: currentFunction === 'tax' ? 'Tax ($)' : 'f(x)',
+                    zeroline: true,
+                    gridcolor: '#e5e7eb'
+                },
+                margin: { t: 20, r: 20, b: 60, l: 60 },
+                plot_bgcolor: 'white',
+                paper_bgcolor: '#f8f9fa',
+                showlegend: false,
+                height: 400
+            };
+
+            Plotly.newPlot('graph', traces, layout, { displayModeBar: false });
+        }
+
+        function updateFunctionDisplay() {
+            const func = functions[currentFunction];
+            document.getElementById('functionTitle').textContent = func.title;
+
+            let html = '<div style="font-family: Courier New; font-size: 1.1em;">';
+            html += 'f(x) = {<br>';
+            func.pieces.forEach(piece => {
+                html += `&nbsp;&nbsp;&nbsp;&nbsp;${piece.formula}, if ${piece.condition}<br>`;
+            });
+            html += '}';
+            html += '</div>';
+
+            document.getElementById('functionDisplay').innerHTML = html;
+        }
+
+        function evaluate() {
+            const x = parseFloat(document.getElementById('xInput').value);
+            const func = functions[currentFunction];
+
+            // Check conditions
+            let conditionsHTML = '<h4 style="margin-bottom: 15px;">Condition Check:</h4>';
+            let activeIndex = -1;
+
+            func.pieces.forEach((piece, index) => {
+                const isTrue = checkCondition(piece.condition, x);
+                if (isTrue) activeIndex = index;
+
+                conditionsHTML += `
+                    <div class="condition-item ${isTrue ? 'active' : 'inactive'}">
+                        <div class="condition-text">${piece.condition}</div>
+                        <div class="condition-status ${isTrue ? 'status-true' : 'status-false'}">
+                            ${isTrue ? '✓ TRUE' : '✗ FALSE'}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('conditionCheck').innerHTML = conditionsHTML;
+
+            // Calculate result
+            if (activeIndex >= 0) {
+                const activePiece = func.pieces[activeIndex];
+                const result = evaluateFormula(activePiece.formula, x);
+
+                let calcHTML = `
+                    <div class="calculation">
+                        <h4>Calculation (Using Piece ${activeIndex + 1}):</h4>
+                        <div class="calc-step">f(${x}) = ${activePiece.formula}</div>
+                        <div class="calc-step">f(${x}) = ${activePiece.formula.replace(/x/g, x)}</div>
+                        <div class="calc-step">f(${x}) = ${result.toFixed(2)}</div>
+                    </div>
+                    <div class="result-box">
+                        f(${x}) = ${result.toFixed(2)}
+                    </div>
+                `;
+
+                document.getElementById('calculationSteps').innerHTML = calcHTML;
+            } else {
+                document.getElementById('calculationSteps').innerHTML = `
+                    <div style="background: #fef3c7; border: 2px solid #f59e0b; padding: 20px; border-radius: 6px; margin-top: 20px;">
+                        <strong>⚠️ Warning:</strong> The value x = ${x} does not satisfy any condition. The function is undefined at this point.
+                    </div>
+                `;
+            }
+        }
+
+        function loadBasicExample() {
+            currentFunction = 'basic';
+            document.getElementById('xInput').value = '0';
+            updateFunctionDisplay();
+            plotFunction();
+            evaluate();
+        }
+
+        function loadTaxBracket() {
+            currentFunction = 'tax';
+            document.getElementById('xInput').value = '25000';
+            updateFunctionDisplay();
+            plotFunction();
+            evaluate();
+        }
+
+        // Initial load
+        loadBasicExample();
+    </script>
+</body>
+</html>
