@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intervals of Increase/Decrease Explorer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            background: #f9fafb;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border: 2px solid #ea580c;
+        }
+        h1 {
+            color: #0a1628;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #0a1628;
+            font-size: 14px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 15px;
+            border: 2px solid #d1d5db;
+            font-family: Georgia, serif;
+            margin-bottom: 20px;
+        }
+        #output {
+            background: #fffbeb;
+            border: 2px solid #ea580c;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            min-height: 120px;
+        }
+        .interval-info {
+            margin-bottom: 12px;
+        }
+        .interval-label {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .increasing { color: #10b981; }
+        .decreasing { color: #ef4444; }
+        .constant { color: #6b7280; }
+        canvas {
+            display: block;
+            width: 100%;
+            border: 2px solid #0a1628;
+            background: #ffffff;
+        }
+        .legend {
+            margin-top: 16px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-line {
+            width: 30px;
+            height: 3px;
+        }
+        .note {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Intervals of Increase/Decrease</h1>
+        <p class="subtitle">PreCalculus Module 1 • Lesson 2</p>
+        
+        <label for="functionType">Select Function:</label>
+        <select id="functionType">
+            <option value="linear_inc">Linear Increasing: f(x) = 2x + 1</option>
+            <option value="linear_dec">Linear Decreasing: f(x) = -x + 3</option>
+            <option value="quadratic">Quadratic: f(x) = x² - 4x + 3</option>
+            <option value="cubic">Cubic: f(x) = x³ - 3x</option>
+        </select>
+        
+        <div id="output"></div>
+        
+        <canvas id="graph" width="700" height="500"></canvas>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-line" style="background:#10b981;"></div>
+                <span>Increasing (↗)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background:#ef4444;"></div>
+                <span>Decreasing (↘)</span>
+            </div>
+        </div>
+        
+        <p class="note">
+            <strong>Key Concept:</strong> A function is increasing when the graph goes UP from left to right. 
+            It's decreasing when the graph goes DOWN from left to right. 
+            Express intervals using interval notation: (-∞, a), [a, b], (b, ∞), etc.
+        </p>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('graph');
+        const ctx = canvas.getContext('2d');
+        const select = document.getElementById('functionType');
+        const output = document.getElementById('output');
+        
+        function getFunction(x, type) {
+            switch(type) {
+                case 'linear_inc': return 2*x + 1;
+                case 'linear_dec': return -x + 3;
+                case 'quadratic': return x*x - 4*x + 3;
+                case 'cubic': return x*x*x - 3*x;
+            }
+        }
+        
+        function getIntervals(type) {
+            let increasing = [];
+            let decreasing = [];
+            
+            switch(type) {
+                case 'linear_inc':
+                    increasing = ['(-∞, ∞)'];
+                    break;
+                case 'linear_dec':
+                    decreasing = ['(-∞, ∞)'];
+                    break;
+                case 'quadratic':
+                    decreasing = ['(-∞, 2)'];
+                    increasing = ['(2, ∞)'];
+                    break;
+                case 'cubic':
+                    increasing = ['(-∞, -1)', '(1, ∞)'];
+                    decreasing = ['(-1, 1)'];
+                    break;
+            }
+            
+            return { increasing, decreasing };
+        }
+        
+        function drawAxes() {
+            ctx.strokeStyle = '#0a1628';
+            ctx.lineWidth = 2;
+            
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height/2);
+            ctx.lineTo(canvas.width, canvas.height/2);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(canvas.width/2, 0);
+            ctx.lineTo(canvas.width/2, canvas.height);
+            ctx.stroke();
+            
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            for (let i = -14; i <= 14; i++) {
+                if (i === 0) continue;
+                const x = canvas.width/2 + i * 35;
+                const y = canvas.height/2 + i * 35;
+                
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            ctx.fillStyle = '#0a1628';
+            ctx.font = '14px Georgia';
+            ctx.fillText('x', canvas.width - 20, canvas.height/2 - 10);
+            ctx.fillText('y', canvas.width/2 + 10, 20);
+        }
+        
+        function isIncreasing(x, type) {
+            const delta = 0.01;
+            const y1 = getFunction(x - delta, type);
+            const y2 = getFunction(x + delta, type);
+            return y2 > y1;
+        }
+        
+        function plotFunction(type) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawAxes();
+            
+            const intervals = getIntervals(type);
+            
+            // Draw function with color coding
+            ctx.lineWidth = 4;
+            
+            for (let px = 0; px < canvas.width - 1; px++) {
+                const x = (px - canvas.width/2) / 35;
+                const y = getFunction(x, type);
+                const nextX = (px + 1 - canvas.width/2) / 35;
+                const nextY = getFunction(nextX, type);
+                
+                if (!isNaN(y) && isFinite(y) && !isNaN(nextY) && isFinite(nextY)) {
+                    const py = canvas.height/2 - y * 35;
+                    const nextPy = canvas.height/2 - nextY * 35;
+                    
+                    if (py >= -50 && py <= canvas.height + 50 && nextPy >= -50 && nextPy <= canvas.height + 50) {
+                        // Color based on increasing/decreasing
+                        if (isIncreasing(x, type)) {
+                            ctx.strokeStyle = '#10b981'; // Green for increasing
+                        } else {
+                            ctx.strokeStyle = '#ef4444'; // Red for decreasing
+                        }
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(px, py);
+                        ctx.lineTo(px + 1, nextPy);
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            // Update output
+            let html = '';
+            
+            if (intervals.increasing.length > 0) {
+                html += '<div class="interval-info">';
+                html += '<div class="interval-label increasing">Increasing on:</div>';
+                html += '<div>' + intervals.increasing.join(', ') + '</div>';
+                html += '</div>';
+            }
+            
+            if (intervals.decreasing.length > 0) {
+                html += '<div class="interval-info">';
+                html += '<div class="interval-label decreasing">Decreasing on:</div>';
+                html += '<div>' + intervals.decreasing.join(', ') + '</div>';
+                html += '</div>';
+            }
+            
+            html += '<div style="margin-top:12px;color:#4b5563;font-size:13px;">';
+            html += 'Watch how the graph rises (green) or falls (red) as you move from left to right along the x-axis.';
+            html += '</div>';
+            
+            output.innerHTML = html;
+        }
+        
+        select.addEventListener('change', (e) => plotFunction(e.target.value));
+        plotFunction('linear_inc');
+    </script>
+</body>
+</html>

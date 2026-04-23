@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extrema Explorer: Maxima & Minima</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            background: #f9fafb;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border: 2px solid #ea580c;
+        }
+        h1 {
+            color: #0a1628;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #0a1628;
+            font-size: 14px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 15px;
+            border: 2px solid #d1d5db;
+            font-family: Georgia, serif;
+            margin-bottom: 20px;
+        }
+        #output {
+            background: #fffbeb;
+            border: 2px solid #ea580c;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            min-height: 120px;
+        }
+        .extrema-info {
+            margin-bottom: 12px;
+        }
+        .extrema-label {
+            font-weight: 600;
+            color: #0a1628;
+            margin-bottom: 4px;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            border: 2px solid #0a1628;
+            background: #ffffff;
+        }
+        .legend {
+            margin-top: 16px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .note {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Extrema Explorer: Maxima & Minima</h1>
+        <p class="subtitle">PreCalculus Module 1 • Lesson 2</p>
+        
+        <label for="functionType">Select Function:</label>
+        <select id="functionType">
+            <option value="parabola">Parabola: f(x) = -(x-2)² + 3 (has maximum)</option>
+            <option value="cubic">Cubic: f(x) = x³ - 3x² + 2 (has both)</option>
+            <option value="quartic">Quartic: f(x) = (x+2)²(x-2)² (has minimum)</option>
+            <option value="sine">Sine Wave: f(x) = 2sin(x) (multiple extrema)</option>
+        </select>
+        
+        <div id="output"></div>
+        
+        <canvas id="graph" width="700" height="500"></canvas>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#3b82f6;"></div>
+                <span>Function</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#ef4444;"></div>
+                <span>Local Maximum (peak)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#8b5cf6;"></div>
+                <span>Local Minimum (valley)</span>
+            </div>
+        </div>
+        
+        <p class="note">
+            <strong>Key Concept:</strong> A local maximum is higher than nearby points (peak). 
+            A local minimum is lower than nearby points (valley). 
+            Absolute extrema are the highest/lowest points on the entire graph.
+        </p>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('graph');
+        const ctx = canvas.getContext('2d');
+        const select = document.getElementById('functionType');
+        const output = document.getElementById('output');
+        
+        function getFunction(x, type) {
+            switch(type) {
+                case 'parabola': return -(x - 2) * (x - 2) + 3;
+                case 'cubic': return x*x*x - 3*x*x + 2;
+                case 'quartic': return (x + 2)*(x + 2) * (x - 2)*(x - 2);
+                case 'sine': return 2 * Math.sin(x);
+            }
+        }
+        
+        function getExtrema(type) {
+            let maxima = [];
+            let minima = [];
+            
+            switch(type) {
+                case 'parabola':
+                    maxima = [{x: 2, y: 3, type: 'absolute'}];
+                    break;
+                case 'cubic':
+                    maxima = [{x: 0, y: 2, type: 'local'}];
+                    minima = [{x: 2, y: -2, type: 'local'}];
+                    break;
+                case 'quartic':
+                    minima = [{x: 0, y: 0, type: 'absolute'}];
+                    break;
+                case 'sine':
+                    maxima = [{x: Math.PI/2, y: 2, type: 'local'}, {x: Math.PI/2 + 2*Math.PI, y: 2, type: 'local'}];
+                    minima = [{x: 3*Math.PI/2, y: -2, type: 'local'}];
+                    break;
+            }
+            
+            return { maxima, minima };
+        }
+        
+        function drawAxes() {
+            ctx.strokeStyle = '#0a1628';
+            ctx.lineWidth = 2;
+            
+            // X-axis
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height/2);
+            ctx.lineTo(canvas.width, canvas.height/2);
+            ctx.stroke();
+            
+            // Y-axis
+            ctx.beginPath();
+            ctx.moveTo(canvas.width/2, 0);
+            ctx.lineTo(canvas.width/2, canvas.height);
+            ctx.stroke();
+            
+            // Grid
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            for (let i = -14; i <= 14; i++) {
+                if (i === 0) continue;
+                const x = canvas.width/2 + i * 35;
+                const y = canvas.height/2 + i * 35;
+                
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Axis labels
+            ctx.fillStyle = '#0a1628';
+            ctx.font = '14px Georgia';
+            ctx.fillText('x', canvas.width - 20, canvas.height/2 - 10);
+            ctx.fillText('y', canvas.width/2 + 10, 20);
+        }
+        
+        function plotFunction(type) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawAxes();
+            
+            const extrema = getExtrema(type);
+            
+            // Draw function
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            let started = false;
+            
+            for (let px = 0; px < canvas.width; px++) {
+                const x = (px - canvas.width/2) / 35;
+                const y = getFunction(x, type);
+                
+                if (!isNaN(y) && isFinite(y)) {
+                    const py = canvas.height/2 - y * 35;
+                    if (py >= -50 && py <= canvas.height + 50) {
+                        if (!started) {
+                            ctx.moveTo(px, py);
+                            started = true;
+                        } else {
+                            ctx.lineTo(px, py);
+                        }
+                    } else {
+                        started = false;
+                    }
+                } else {
+                    started = false;
+                }
+            }
+            ctx.stroke();
+            
+            // Draw maxima (red)
+            ctx.fillStyle = '#ef4444';
+            extrema.maxima.forEach(max => {
+                const px = canvas.width/2 + max.x * 35;
+                const py = canvas.height/2 - max.y * 35;
+                ctx.beginPath();
+                ctx.arc(px, py, 8, 0, 2*Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+            
+            // Draw minima (purple)
+            ctx.fillStyle = '#8b5cf6';
+            extrema.minima.forEach(min => {
+                const px = canvas.width/2 + min.x * 35;
+                const py = canvas.height/2 - min.y * 35;
+                ctx.beginPath();
+                ctx.arc(px, py, 8, 0, 2*Math.PI);
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+            
+            // Update output
+            let html = '';
+            
+            if (extrema.maxima.length > 0) {
+                html += '<div class="extrema-info">';
+                html += '<div class="extrema-label">Local Maxima (peaks):</div>';
+                extrema.maxima.forEach(max => {
+                    html += '<div>Point: (' + max.x.toFixed(2) + ', ' + max.y.toFixed(2) + ')';
+                    if (max.type === 'absolute') html += ' — <strong>Absolute Maximum</strong>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+            
+            if (extrema.minima.length > 0) {
+                html += '<div class="extrema-info">';
+                html += '<div class="extrema-label">Local Minima (valleys):</div>';
+                extrema.minima.forEach(min => {
+                    html += '<div>Point: (' + min.x.toFixed(2) + ', ' + min.y.toFixed(2) + ')';
+                    if (min.type === 'absolute') html += ' — <strong>Absolute Minimum</strong>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+            
+            if (extrema.maxima.length === 0 && extrema.minima.length === 0) {
+                html += '<div>This view shows no local extrema.</div>';
+            }
+            
+            html += '<div style="margin-top:12px;color:#4b5563;font-size:13px;">';
+            html += 'Extrema occur at turning points where the graph changes from increasing to decreasing (maximum) or decreasing to increasing (minimum).';
+            html += '</div>';
+            
+            output.innerHTML = html;
+        }
+        
+        select.addEventListener('change', (e) => plotFunction(e.target.value));
+        plotFunction('parabola');
+    </script>
+</body>
+</html>
