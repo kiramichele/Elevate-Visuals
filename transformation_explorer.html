@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformation Explorer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            background: #f9fafb;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border: 2px solid #ea580c;
+        }
+        h1 {
+            color: #0a1628;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #0a1628;
+            font-size: 14px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 15px;
+            border: 2px solid #d1d5db;
+            font-family: Georgia, serif;
+            margin-bottom: 20px;
+        }
+        .slider-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .slider-item label {
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        .slider-item input[type="range"] {
+            width: 100%;
+        }
+        .slider-value {
+            color: #ea580c;
+            font-weight: 700;
+        }
+        #equation {
+            background: #fffbeb;
+            border: 2px solid #ea580c;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: 600;
+            color: #0a1628;
+            text-align: center;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            border: 2px solid #0a1628;
+            background: #ffffff;
+        }
+        .legend {
+            margin-top: 16px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            font-size: 13px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-line {
+            width: 30px;
+            height: 3px;
+        }
+        .note {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Transformation Explorer</h1>
+        <p class="subtitle">PreCalculus Module 1 • Lesson 4</p>
+        
+        <label for="parentFunc">Parent Function:</label>
+        <select id="parentFunc">
+            <option value="x2">f(x) = x²</option>
+            <option value="abs">f(x) = |x|</option>
+            <option value="sqrt">f(x) = √x</option>
+            <option value="recip">f(x) = 1/x</option>
+        </select>
+        
+        <div class="slider-grid">
+            <div class="slider-item">
+                <label>Vertical Shift (d): <span class="slider-value" id="dVal">0</span></label>
+                <input type="range" id="d" min="-5" max="5" step="0.5" value="0">
+            </div>
+            <div class="slider-item">
+                <label>Horizontal Shift (c): <span class="slider-value" id="cVal">0</span></label>
+                <input type="range" id="c" min="-5" max="5" step="0.5" value="0">
+            </div>
+            <div class="slider-item">
+                <label>Vertical Stretch (a): <span class="slider-value" id="aVal">1</span></label>
+                <input type="range" id="a" min="-3" max="3" step="0.25" value="1">
+            </div>
+            <div class="slider-item">
+                <label>Horizontal Compress (b): <span class="slider-value" id="bVal">1</span></label>
+                <input type="range" id="b" min="0.25" max="3" step="0.25" value="1">
+            </div>
+        </div>
+        
+        <div id="equation">g(x) = f(x)</div>
+        
+        <canvas id="graph" width="700" height="500"></canvas>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-line" style="background:#9ca3af;"></div>
+                <span>Parent f(x)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background:#ea580c;"></div>
+                <span>Transformed g(x)</span>
+            </div>
+        </div>
+        
+        <p class="note">
+            <strong>Notice:</strong> f(x-c) shifts RIGHT (opposite sign!) and f(bx) with b>1 makes the graph NARROWER.
+        </p>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('graph');
+        const ctx = canvas.getContext('2d');
+        const parentSelect = document.getElementById('parentFunc');
+        const dSlider = document.getElementById('d');
+        const cSlider = document.getElementById('c');
+        const aSlider = document.getElementById('a');
+        const bSlider = document.getElementById('b');
+        const equation = document.getElementById('equation');
+        
+        function getParentValue(x, type) {
+            switch(type) {
+                case 'x2': return x * x;
+                case 'abs': return Math.abs(x);
+                case 'sqrt': return x >= 0 ? Math.sqrt(x) : NaN;
+                case 'recip': return x !== 0 ? 1/x : NaN;
+            }
+        }
+        
+        function drawGraph() {
+            const type = parentSelect.value;
+            const d = parseFloat(dSlider.value);
+            const c = parseFloat(cSlider.value);
+            const a = parseFloat(aSlider.value);
+            const b = parseFloat(bSlider.value);
+            
+            document.getElementById('dVal').textContent = d;
+            document.getElementById('cVal').textContent = c;
+            document.getElementById('aVal').textContent = a;
+            document.getElementById('bVal').textContent = b;
+            
+            // Update equation
+            let eqText = 'g(x) = ';
+            if (a !== 1) eqText += a + '·';
+            eqText += 'f(';
+            if (b !== 1) eqText += b;
+            eqText += '(x';
+            if (c !== 0) eqText += (c > 0 ? ' - ' : ' + ') + Math.abs(c);
+            eqText += '))';
+            if (d !== 0) eqText += (d > 0 ? ' + ' : ' - ') + Math.abs(d);
+            equation.textContent = eqText;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Axes
+            ctx.strokeStyle = '#0a1628';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height/2);
+            ctx.lineTo(canvas.width, canvas.height/2);
+            ctx.moveTo(canvas.width/2, 0);
+            ctx.lineTo(canvas.width/2, canvas.height);
+            ctx.stroke();
+            
+            // Grid
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            for (let i = -14; i <= 14; i++) {
+                if (i === 0) continue;
+                const x = canvas.width/2 + i * 25;
+                const y = canvas.height/2 + i * 25;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Parent function (gray)
+            ctx.strokeStyle = '#9ca3af';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            let started = false;
+            for (let px = 0; px < canvas.width; px++) {
+                const x = (px - canvas.width/2) / 30;
+                const y = getParentValue(x, type);
+                if (!isNaN(y) && isFinite(y)) {
+                    const py = canvas.height/2 - y * 30;
+                    if (py >= -50 && py <= canvas.height + 50) {
+                        if (!started) {
+                            ctx.moveTo(px, py);
+                            started = true;
+                        } else {
+                            ctx.lineTo(px, py);
+                        }
+                    } else {
+                        started = false;
+                    }
+                } else {
+                    started = false;
+                }
+            }
+            ctx.stroke();
+            
+            // Transformed function (orange)
+            ctx.strokeStyle = '#ea580c';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            started = false;
+            for (let px = 0; px < canvas.width; px++) {
+                const x = (px - canvas.width/2) / 30;
+                const innerX = b * (x - c);
+                const parentY = getParentValue(innerX, type);
+                const y = a * parentY + d;
+                if (!isNaN(y) && isFinite(y)) {
+                    const py = canvas.height/2 - y * 30;
+                    if (py >= -50 && py <= canvas.height + 50) {
+                        if (!started) {
+                            ctx.moveTo(px, py);
+                            started = true;
+                        } else {
+                            ctx.lineTo(px, py);
+                        }
+                    } else {
+                        started = false;
+                    }
+                } else {
+                    started = false;
+                }
+            }
+            ctx.stroke();
+        }
+        
+        parentSelect.addEventListener('change', drawGraph);
+        dSlider.addEventListener('input', drawGraph);
+        cSlider.addEventListener('input', drawGraph);
+        aSlider.addEventListener('input', drawGraph);
+        bSlider.addEventListener('input', drawGraph);
+        
+        drawGraph();
+    </script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain & Range Explorer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            background: #f9fafb;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 30px;
+            border: 2px solid #ea580c;
+        }
+        h1 {
+            color: #0a1628;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #0a1628;
+            font-size: 14px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 15px;
+            border: 2px solid #d1d5db;
+            font-family: Georgia, serif;
+            margin-bottom: 20px;
+        }
+        #output {
+            background: #fffbeb;
+            border: 2px solid #ea580c;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 15px;
+            min-height: 80px;
+        }
+        .domain-range {
+            font-weight: 600;
+            color: #0a1628;
+            margin-bottom: 8px;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            border: 2px solid #0a1628;
+            background: #ffffff;
+        }
+        .note {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Domain & Range Explorer</h1>
+        <p class="subtitle">PreCalculus Module 1 • Lesson 1</p>
+        
+        <label for="functionType">Select Function Type:</label>
+        <select id="functionType">
+            <option value="polynomial">Polynomial: f(x) = x²</option>
+            <option value="rational">Rational: f(x) = 1/x</option>
+            <option value="sqrt">Square Root: f(x) = √x</option>
+            <option value="log">Logarithmic: f(x) = ln(x)</option>
+        </select>
+        
+        <div id="output"></div>
+        
+        <canvas id="graph" width="700" height="500"></canvas>
+        
+        <p class="note">
+            <strong>Instructions:</strong> Select different function types to see how domain and range restrictions change. 
+            The graph shows which x-values and y-values are valid.
+        </p>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('graph');
+        const ctx = canvas.getContext('2d');
+        const select = document.getElementById('functionType');
+        const output = document.getElementById('output');
+        
+        function drawAxes() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#0a1628';
+            ctx.lineWidth = 2;
+            
+            // X-axis
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height/2);
+            ctx.lineTo(canvas.width, canvas.height/2);
+            ctx.stroke();
+            
+            // Y-axis
+            ctx.beginPath();
+            ctx.moveTo(canvas.width/2, 0);
+            ctx.lineTo(canvas.width/2, canvas.height);
+            ctx.stroke();
+            
+            // Grid
+            ctx.strokeStyle = '#e5e7eb';
+            ctx.lineWidth = 1;
+            for (let i = -14; i <= 14; i++) {
+                if (i === 0) continue;
+                const x = canvas.width/2 + i * 25;
+                const y = canvas.height/2 + i * 25;
+                
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Axis labels
+            ctx.fillStyle = '#0a1628';
+            ctx.font = '14px Georgia';
+            ctx.fillText('x', canvas.width - 20, canvas.height/2 - 10);
+            ctx.fillText('y', canvas.width/2 + 10, 20);
+            
+            // Tick marks
+            ctx.fillStyle = '#4b5563';
+            ctx.font = '11px Georgia';
+            for (let i = -10; i <= 10; i += 2) {
+                if (i === 0) continue;
+                const x = canvas.width/2 + i * 25;
+                const y = canvas.height/2 + i * 25;
+                
+                // X-axis ticks
+                ctx.fillText(i, x - 5, canvas.height/2 + 20);
+                // Y-axis ticks
+                ctx.fillText(-i, canvas.width/2 + 10, y + 4);
+            }
+        }
+        
+        function plotFunction(type) {
+            drawAxes();
+            ctx.strokeStyle = '#ea580c';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            let domain = '';
+            let range = '';
+            let started = false;
+            
+            for (let px = 0; px < canvas.width; px++) {
+                const x = (px - canvas.width/2) / 25;
+                let y;
+                let shouldPlot = true;
+                
+                switch(type) {
+                    case 'polynomial':
+                        y = x * x;
+                        domain = '(-∞, ∞)';
+                        range = '[0, ∞)';
+                        break;
+                    case 'rational':
+                        if (Math.abs(x) < 0.1) {
+                            shouldPlot = false;
+                        } else {
+                            y = 1 / x;
+                        }
+                        domain = '(-∞, 0) ∪ (0, ∞)';
+                        range = '(-∞, 0) ∪ (0, ∞)';
+                        break;
+                    case 'sqrt':
+                        if (x < 0) {
+                            shouldPlot = false;
+                        } else {
+                            y = Math.sqrt(x);
+                        }
+                        domain = '[0, ∞)';
+                        range = '[0, ∞)';
+                        break;
+                    case 'log':
+                        if (x <= 0) {
+                            shouldPlot = false;
+                        } else {
+                            y = Math.log(x);
+                        }
+                        domain = '(0, ∞)';
+                        range = '(-∞, ∞)';
+                        break;
+                }
+                
+                if (shouldPlot && !isNaN(y) && isFinite(y)) {
+                    const py = canvas.height/2 - y * 25;
+                    if (py >= -50 && py <= canvas.height + 50) {
+                        if (!started) {
+                            ctx.moveTo(px, py);
+                            started = true;
+                        } else {
+                            ctx.lineTo(px, py);
+                        }
+                    } else {
+                        started = false;
+                    }
+                } else {
+                    started = false;
+                }
+            }
+            
+            ctx.stroke();
+            
+            output.innerHTML = 
+                '<div class="domain-range">Domain: ' + domain + '</div>' +
+                '<div class="domain-range">Range: ' + range + '</div>' +
+                '<div style="margin-top:12px;color:#4b5563;">Observe which x-values have points on the graph (domain) and which y-values are reached (range).</div>';
+        }
+        
+        select.addEventListener('change', (e) => plotFunction(e.target.value));
+        plotFunction('polynomial');
+    </script>
+</body>
+</html>
