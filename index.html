@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PreCalculus Module 1 - Video Production Demos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            padding: 50px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #0d9488;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .course-info {
+            text-align: center;
+            color: #374151;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .course-info strong {
+            color: #0d9488;
+        }
+
+        .demos {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .demo-card {
+            background: #f8f9fa;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .demo-card:hover {
+            border-color: #0d9488;
+            background: #f0fdfa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
+        }
+
+        .demo-number {
+            display: inline-block;
+            background: #0d9488;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .demo-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #0d9488;
+            margin-bottom: 8px;
+        }
+
+        .demo-lesson {
+            color: #6b7280;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+
+        .demo-description {
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .status-ready {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-coming {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e5e7eb;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.95em;
+        }
+
+        .footer strong {
+            color: #0d9488;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Interactive Video Demos</h1>
+        <div class="subtitle">PreCalculus Module 1</div>
+        <div class="course-info">
+            <strong>Course:</strong> Grade 12 PreCalculus<br>
+            <strong>Module:</strong> Advanced Function Analysis & Transformations<br>
+            <strong>Purpose:</strong> Screen-recordable interactive tools for video production
+        </div>
+
+        <div class="demos">
+            <!-- Demo 1 -->
+            <a href="transformation_demo.html" class="demo-card">
+                <div class="demo-number">1</div>
+                <div class="demo-title">The Universal Transformation Toolkit</div>
+                <div class="demo-lesson">Lesson 4 - Transformations</div>
+                <div class="demo-description">
+                    Interactive split-screen demonstration of all 6 function transformations. Includes sliders for vertical/horizontal shifts and stretches, reflection toggles, and 5 parent functions. Perfect for screen recording the counterintuitive horizontal transformations.
+                </div>
+                <span class="status-badge status-ready">✓ Ready</span>
+            </a>
+
+            <!-- Demo 2 -->
+            <a href="composite_demo.html" class="demo-card">
+                <div class="demo-number">2</div>
+                <div class="demo-title">Composite Functions: Inside Out</div>
+                <div class="demo-lesson">Lesson 6 - Composite Functions</div>
+                <div class="demo-description">
+                    Animated function machine flow diagram showing how (f ∘ g)(x) works. Input boxes for custom functions, step-by-step calculation display, and side-by-side comparison of (f∘g) vs (g∘f) to demonstrate order matters.
+                </div>
+                <span class="status-badge status-coming">Coming Soon</span>
+            </a>
+
+            <!-- Demo 3 -->
+            <a href="piecewise_demo.html" class="demo-card">
+                <div class="demo-number">3</div>
+                <div class="demo-title">Piecewise Functions in Action</div>
+                <div class="demo-lesson">Lesson 5 - Piecewise Functions</div>
+                <div class="demo-description">
+                    Color-coded piecewise function grapher with condition checking visualization. Includes pre-loaded tax bracket example, evaluation calculator showing which piece applies, and continuity checker at boundaries.
+                </div>
+                <span class="status-badge status-coming">Coming Soon</span>
+            </a>
+        </div>
+
+        <div class="footer">
+            <strong>For Video Production Teams:</strong><br>
+            These interactive tools are designed for screen recording. All animations, colors, and controls match the video scripts exactly. Simply adjust parameters and record - no After Effects needed!
+        </div>
+    </div>
+</body>
+</html>
