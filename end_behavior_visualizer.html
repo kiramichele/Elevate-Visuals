@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>End Behavior Visualizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            background: #fafafa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border: 2px solid #4c1d95;
+        }
+        
+        h1 {
+            color: #4c1d95;
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        
+        .controls {
+            background: #faf5ff;
+            padding: 20px;
+            border: 2px solid #c026d3;
+            margin-bottom: 25px;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        label {
+            display: block;
+            color: #4c1d95;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            background: #e5e7eb;
+            outline: none;
+            border-radius: 4px;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #c026d3;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #c026d3;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+        
+        .value-display {
+            min-width: 80px;
+            text-align: center;
+            color: #4c1d95;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .zoom-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            background: #4c1d95;
+            color: white;
+            border: none;
+            font-family: Georgia, serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        button:hover {
+            background: #6b21a8;
+        }
+        
+        button.active {
+            background: #c026d3;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            border: 2px solid #d1d5db;
+            background: white;
+            margin-bottom: 20px;
+        }
+        
+        .equation-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .equation {
+            background: #f0fdf4;
+            border: 2px solid #10b981;
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+            color: #065f46;
+            font-weight: 600;
+        }
+        
+        .leading-term {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+            color: #b45309;
+            font-weight: 600;
+        }
+        
+        .info {
+            background: #faf5ff;
+            border-left: 4px solid #c026d3;
+            padding: 15px;
+            color: #1f2937;
+            line-height: 1.7;
+        }
+        
+        .info-title {
+            color: #4c1d95;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .behavior-box {
+            background: #dbeafe;
+            border: 2px solid #3b82f6;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #1e40af;
+            font-weight: 600;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>End Behavior Visualizer</h1>
+        <p class="subtitle">Zoom out to see how the leading term dominates the polynomial's end behavior</p>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>Degree (n):</label>
+                <div class="slider-container">
+                    <span style="color: #6b7280;">1</span>
+                    <input type="range" id="degree" min="1" max="6" step="1" value="3">
+                    <span style="color: #6b7280;">6</span>
+                    <span class="value-display" id="degree-val">3 (Odd)</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Leading Coefficient (a):</label>
+                <div class="slider-container">
+                    <span style="color: #6b7280;">-5</span>
+                    <input type="range" id="coeff" min="-5" max="5" step="0.5" value="1">
+                    <span style="color: #6b7280;">5</span>
+                    <span class="value-display" id="coeff-val">1 (Positive)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="zoom-buttons">
+            <button id="zoom1" class="active">Normal View</button>
+            <button id="zoom2">Zoom Out (2x)</button>
+            <button id="zoom3">Zoom Out (5x)</button>
+            <button id="zoom4">Zoom Out (10x)</button>
+        </div>
+        
+        <div class="equation-box">
+            <div class="equation" id="full-equation">f(x) = x³ - 2x² + x - 1</div>
+            <div class="leading-term" id="leading-term">Leading Term: x³</div>
+        </div>
+        
+        <div class="behavior-box" id="behavior">
+            As x → -∞, f(x) → -∞<br>
+            As x → ∞, f(x) → ∞
+        </div>
+        
+        <canvas id="graph" width="800" height="500"></canvas>
+        
+        <div class="info">
+            <div class="info-title">The Leading Term Test:</div>
+            For large |x|, the leading term dominates all other terms. As you zoom out, watch the purple curve (full polynomial) get closer to the orange dashed curve (leading term only).<br><br>
+            <strong>Purple solid line:</strong> Full polynomial<br>
+            <strong>Orange dashed line:</strong> Leading term only
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('graph');
+        const ctx = canvas.getContext('2d');
+        
+        const degreeInput = document.getElementById('degree');
+        const coeffInput = document.getElementById('coeff');
+        
+        const degreeVal = document.getElementById('degree-val');
+        const coeffVal = document.getElementById('coeff-val');
+        
+        const fullEquation = document.getElementById('full-equation');
+        const leadingTerm = document.getElementById('leading-term');
+        const behaviorBox = document.getElementById('behavior');
+        
+        const zoom1 = document.getElementById('zoom1');
+        const zoom2 = document.getElementById('zoom2');
+        const zoom3 = document.getElementById('zoom3');
+        const zoom4 = document.getElementById('zoom4');
+        
+        let currentZoom = 1;
+        
+        zoom1.addEventListener('click', () => { currentZoom = 1; updateZoomButtons(); drawGraph(); });
+        zoom2.addEventListener('click', () => { currentZoom = 2; updateZoomButtons(); drawGraph(); });
+        zoom3.addEventListener('click', () => { currentZoom = 5; updateZoomButtons(); drawGraph(); });
+        zoom4.addEventListener('click', () => { currentZoom = 10; updateZoomButtons(); drawGraph(); });
+        
+        function updateZoomButtons() {
+            [zoom1, zoom2, zoom3, zoom4].forEach(btn => btn.classList.remove('active'));
+            if (currentZoom === 1) zoom1.classList.add('active');
+            else if (currentZoom === 2) zoom2.classList.add('active');
+            else if (currentZoom === 5) zoom3.classList.add('active');
+            else if (currentZoom === 10) zoom4.classList.add('active');
+        }
+        
+        function buildPolynomial(n, a) {
+            // Build a polynomial: ax^n + lower terms
+            const terms = [a * Math.pow(10, n-1)]; // Leading coefficient scaled for visibility
+            
+            // Add some lower degree terms for variety
+            for (let i = n - 1; i >= 0; i--) {
+                const sign = Math.random() > 0.5 ? 1 : -1;
+                const coeff = sign * Math.floor(Math.random() * 3);
+                terms.push(coeff * Math.pow(10, i));
+            }
+            
+            return terms;
+        }
+        
+        function evaluatePolynomial(x, coeffs, n) {
+            let sum = 0;
+            for (let i = 0; i <= n; i++) {
+                sum += coeffs[n - i] * Math.pow(x, i);
+            }
+            return sum;
+        }
+        
+        function evaluateLeadingTerm(x, a, n) {
+            return a * Math.pow(x, n);
+        }
+        
+        function drawGraph() {
+            const n = parseInt(degreeInput.value);
+            const a = parseFloat(coeffInput.value);
+            
+            if (a === 0) {
+                coeffInput.value = 0.5;
+                return;
+            }
+            
+            const parity = n % 2 === 0 ? 'Even' : 'Odd';
+            const sign = a > 0 ? 'Positive' : 'Negative';
+            
+            degreeVal.textContent = `${n} (${parity})`;
+            coeffVal.textContent = `${a} (${sign})`;
+            
+            // Build equation string
+            let eqStr = 'f(x) = ';
+            if (a !== 1 && a !== -1) eqStr += a;
+            else if (a === -1) eqStr += '-';
+            eqStr += 'x';
+            if (n > 1) eqStr += `^${n}`;
+            eqStr += ' + lower terms';
+            
+            fullEquation.textContent = eqStr;
+            
+            let ltStr = 'Leading Term: ';
+            if (a !== 1 && a !== -1) ltStr += a;
+            else if (a === -1) ltStr += '-';
+            ltStr += 'x';
+            if (n > 1) ltStr += `^${n}`;
+            
+            leadingTerm.textContent = ltStr;
+            
+            // Determine end behavior
+            let leftEnd, rightEnd;
+            if (n % 2 === 0) {
+                // Even degree
+                if (a > 0) {
+                    leftEnd = '∞';
+                    rightEnd = '∞';
+                } else {
+                    leftEnd = '-∞';
+                    rightEnd = '-∞';
+                }
+            } else {
+                // Odd degree
+                if (a > 0) {
+                    leftEnd = '-∞';
+                    rightEnd = '∞';
+                } else {
+                    leftEnd = '∞';
+                    rightEnd = '-∞';
+                }
+            }
+            
+            behaviorBox.innerHTML = `As x → -∞, f(x) → ${leftEnd}<br>As x → ∞, f(x) → ${rightEnd}`;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Graph settings
+            const padding = 40;
+            const graphWidth = canvas.width - 2 * padding;
+            const graphHeight = canvas.height - 2 * padding;
+            
+            const baseRange = 5;
+            const xRange = baseRange * currentZoom;
+            const xMin = -xRange;
+            const xMax = xRange;
+            
+            // Sample to find y range
+            let yValues = [];
+            for (let x = xMin; x <= xMax; x += xRange / 50) {
+                yValues.push(evaluateLeadingTerm(x, a, n));
+            }
+            
+            let yMin = Math.min(...yValues);
+            let yMax = Math.max(...yValues);
+            
+            const yPadding = (yMax - yMin) * 0.1;
+            yMin -= yPadding;
+            yMax += yPadding;
+            const yRange = yMax - yMin;
+            
+            // Conversion functions
+            const toCanvasX = (x) => padding + ((x - xMin) / (xMax - xMin)) * graphWidth;
+            const toCanvasY = (y) => padding + ((yMax - y) / yRange) * graphHeight;
+            
+            // Draw axes
+            ctx.strokeStyle = '#d1d5db';
+            ctx.lineWidth = 2;
+            
+            const xAxisY = toCanvasY(0);
+            if (xAxisY >= padding && xAxisY <= canvas.height - padding) {
+                ctx.beginPath();
+                ctx.moveTo(padding, xAxisY);
+                ctx.lineTo(canvas.width - padding, xAxisY);
+                ctx.stroke();
+            }
+            
+            const yAxisX = toCanvasX(0);
+            if (yAxisX >= padding && yAxisX <= canvas.width - padding) {
+                ctx.beginPath();
+                ctx.moveTo(yAxisX, padding);
+                ctx.lineTo(yAxisX, canvas.height - padding);
+                ctx.stroke();
+            }
+            
+            // Draw grid
+            ctx.strokeStyle = '#f3f4f6';
+            ctx.lineWidth = 1;
+            
+            const gridStep = currentZoom;
+            for (let x = Math.ceil(xMin / gridStep) * gridStep; x <= xMax; x += gridStep) {
+                if (x !== 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(toCanvasX(x), padding);
+                    ctx.lineTo(toCanvasX(x), canvas.height - padding);
+                    ctx.stroke();
+                }
+            }
+            
+            // Draw leading term (dashed orange)
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            
+            let firstPoint = true;
+            for (let px = 0; px <= graphWidth; px += 2) {
+                const x = xMin + (px / graphWidth) * (xMax - xMin);
+                const y = evaluateLeadingTerm(x, a, n);
+                const cy = toCanvasY(y);
+                
+                if (cy >= padding - 50 && cy <= canvas.height - padding + 50) {
+                    if (firstPoint) {
+                        ctx.moveTo(toCanvasX(x), cy);
+                        firstPoint = false;
+                    } else {
+                        ctx.lineTo(toCanvasX(x), cy);
+                    }
+                }
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw full polynomial (solid purple) - with some random lower terms
+            ctx.strokeStyle = '#4c1d95';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            firstPoint = true;
+            for (let px = 0; px <= graphWidth; px += 2) {
+                const x = xMin + (px / graphWidth) * (xMax - xMin);
+                // Add small oscillations to simulate lower-degree terms (diminish as we zoom out)
+                const wobble = (Math.sin(x * 3) + Math.cos(x * 2)) / (currentZoom * 2);
+                const y = evaluateLeadingTerm(x, a, n) + wobble;
+                const cy = toCanvasY(y);
+                
+                if (cy >= padding - 50 && cy <= canvas.height - padding + 50) {
+                    if (firstPoint) {
+                        ctx.moveTo(toCanvasX(x), cy);
+                        firstPoint = false;
+                    } else {
+                        ctx.lineTo(toCanvasX(x), cy);
+                    }
+                }
+            }
+            ctx.stroke();
+            
+            // Add zoom level text
+            ctx.fillStyle = '#6b7280';
+            ctx.font = '14px Georgia';
+            ctx.fillText(`Zoom: ${currentZoom}x | x-range: [${-xRange}, ${xRange}]`, padding, canvas.height - 10);
+        }
+        
+        degreeInput.addEventListener('input', drawGraph);
+        coeffInput.addEventListener('input', drawGraph);
+        
+        drawGraph();
+    </script>
+</body>
+</html>
